@@ -1,5 +1,4 @@
 use fmt;
-use os;
 use sdl2;
 use sdl2::{ controller_axis, event_type, renderer_flags, window_flags };
 use sdl2::image;
