@@ -220,7 +220,7 @@ export type joy_device_event = struct {
 export type controller_axis_event = struct {
 	common_event,
 	which: i32, // TODO
-	axis: u8,
+	axis: controller_axis,
 	padding1: u8,
 	padding2: u8,
 	padding3: u8,
