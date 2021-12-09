@@ -4,9 +4,9 @@
 LIBS=-lc -lSDL2_image -lSDL2
 
 demo:
-	hare build $(LIBS) -T+libc cmd/demo
+	hare build $(LIBS) cmd/demo
 
 run:
-	hare run $(LIBS) -T+libc cmd/demo
+	hare run $(LIBS) cmd/demo
 
 .PHONY: demo run
