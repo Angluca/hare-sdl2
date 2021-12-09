@@ -79,6 +79,21 @@ export @symbol("SDL_QueryTexture") fn query_texture(texture: *texture,
 	format: nullable *u32, access: nullable *int,
 	w: nullable *int, h: nullable *int) int;
 
+// Set an additional color value multiplied into render copy operations.
+//
+// When this texture is rendered, during the copy operation each source color
+// channel is modulated by the appropriate color value according to the
+// following formula:
+//
+// 	srcC = srcC * (color / 255)
+//
+// Color modulation is not always supported by the renderer; it will return -1
+// if color modulation is not supported.
+//
+// Returns 0 on success or a negative error code on failure.
+export @symbol("SDL_SetTextureColorMod") fn set_texture_color_mod(
+	texture: *texture, r: u8, g: u8, b: u8) int;
+
 // Copy a portion of the texture to the current rendering target.
 //
 // Returns 0 on success, or -1 on error
