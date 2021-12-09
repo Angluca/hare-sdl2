@@ -1,6 +1,6 @@
 use fmt;
 use os;
-use sdl2::{event_type, window_flags};
+use sdl2::{event_type, window_flags, renderer_flags};
 use sdl2;
 use strings;
 
@@ -19,6 +19,18 @@ export fn main() void = {
 		fmt::fatal("sdl2::create_window failed");
 	};
 	defer sdl2::destroy_window(win);
+
+	const render = match (sdl2::create_renderer(win, -1, renderer_flags::NONE)) {
+	case let rend: *sdl2::renderer =>
+		yield rend;
+	case null =>
+		fmt::fatal("sdl2::create_renderer failed");
+	};
+	defer sdl2::destroy_renderer(render);
+
+	sdl2::set_render_draw_color(render, 255, 0, 0, 255);
+	sdl2::render_clear(render);
+	sdl2::render_present(render);
 
 	let ev = sdl2::event { ... };
 	for (sdl2::wait_event(&ev) == 1) {
