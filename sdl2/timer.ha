@@ -4,7 +4,7 @@
 //
 // Returns an unsigned 32-bit value representing the number of milliseconds
 // since the SDL library initialized.
-export @symbol("SDL_GetTicks") fn getticks() u32;
+export @symbol("SDL_GetTicks") fn get_ticks() u32;
 
 // Get the current value of the high resolution counter.
 //
@@ -15,12 +15,12 @@ export @symbol("SDL_GetTicks") fn getticks() u32;
 // [[getperformancefrequency]].
 //
 // Returns the current counter value.
-export @symbol("SDL_GetPerformanceCounter") fn getperformancecounter() u64;
+export @symbol("SDL_GetPerformanceCounter") fn get_performance_counter() u64;
 
 // Get the count per second of the high resolution counter.
 //
 // Returns a platform-specific count per second.
-export @symbol("SDL_GetPerformanceFrequency") fn getperformancefrequency() u64;
+export @symbol("SDL_GetPerformanceFrequency") fn get_performance_frequency() u64;
 
 // Wait a specified number of milliseconds before returning.
 //
