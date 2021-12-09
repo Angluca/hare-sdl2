@@ -108,7 +108,7 @@ fn load_object(render: *sdl2::renderer, path: str) object = {
 	case let tex: *sdl2::texture =>
 		yield tex;
 	case null =>
-		fmt::fatal("sdl2::image::load_texture failed for cat.png");
+		fmt::fatal("sdl2::image::load_texture failed for {}", path);
 	};
 
 	let w = 0, h = 0;
