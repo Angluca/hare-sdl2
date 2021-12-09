@@ -16,6 +16,7 @@ type state = struct {
 	quit: bool,
 	window: *sdl2::window,
 	render: *sdl2::renderer,
+	nbutton: int,
 	hare: object,
 	cat: object,
 };
@@ -96,6 +97,10 @@ fn update(state: *state) void = {
 		if (axis_y(ev.caxis.axis)) {
 			state.cat.dy = delta;
 		};
+	case event_type::CONTROLLERBUTTONDOWN =>
+		state.nbutton += 1;
+	case event_type::CONTROLLERBUTTONUP =>
+		state.nbutton -= 1;
 	case => void;
 	};
 
@@ -128,8 +133,13 @@ fn update(state: *state) void = {
 };
 
 fn draw(state: *state) void = {
-	sdl2::set_render_draw_color(state.render, 50, 50, 50, 255);
+	if (state.nbutton == 0) {
+		sdl2::set_render_draw_color(state.render, 50, 50, 50, 255);
+	} else {
+		sdl2::set_render_draw_color(state.render, 50, 50, 200, 255);
+	};
 	sdl2::render_clear(state.render);
+
 	draw_object(state, &state.hare);
 	draw_object(state, &state.cat);
 	sdl2::render_present(state.render);
