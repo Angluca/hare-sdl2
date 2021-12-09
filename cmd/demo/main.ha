@@ -124,7 +124,7 @@ fn load_object(render: *sdl2::renderer, path: str) object = {
 export fn main() void = {
 	sdl2::init(sdl2::init_flags::VIDEO | sdl2::init_flags::GAMECONTROLLER);
 	defer sdl2::quit();
-	let flags = image::init(image::init_flags::PNG | image::init_flags::JPG);
+	image::init(image::init_flags::PNG | image::init_flags::JPG);
 	defer image::quit();
 
 	const title = strings::to_c("Hare SDL2 demo");
