@@ -71,3 +71,16 @@ export @symbol("SDL_CreateWindow") fn create_window(title: const *char,
 
 // Destroy a window.
 export @symbol("SDL_DestroyWindow") fn destroy_window(window: *window) void;
+
+// Get the size of a window's client area.
+//
+// Null may safely be passed as the 'w' or 'h' parameter if the width or
+// height value is not desired.
+//
+// The window size in screen coordinates may differ from the size in pixels, if
+// the window was created with `ALLOW_HIGHDPI` on a platform with high-dpi
+// support (e.g. iOS or macOS). Use [[gl_getdrawablesize]],
+// [[vulkan_getdrawablesize]], or [[getrendereroutputsize]] to get the real
+// client area size in pixels.
+export @symbol("SDL_GetWindowSize") fn get_window_size(window: *window,
+	w: nullable *int, h: nullable *int) void;

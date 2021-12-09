@@ -5,11 +5,21 @@ use sdl2;
 use sdl2::image;
 use strings;
 
+type texture = struct {
+	tex: *sdl2::texture,
+	w: int,
+	h: int,
+};
+
 type state = struct {
-	hare: *sdl2::texture,
-	cat: *sdl2::texture,
+	window: *sdl2::window,
+	render: *sdl2::renderer,
+	hare: texture,
+	cat: texture,
 	hare_x: int,
 	hare_y: int,
+	hare_dx: int,
+	hare_dy: int,
 	cat_x: int,
 	cat_y: int,
 };
@@ -41,67 +51,83 @@ export fn main() void = {
 	defer sdl2::destroy_renderer(render);
 
 	let state = state {
-		hare = {
-			const path = strings::to_c("mascot.jpg");
-			defer free(path);
-			yield match (image::load_texture(render, path)) {
-			case let tex: *sdl2::texture =>
-				yield tex;
-			case null =>
-				fmt::fatal("sdl2::image::load_texture failed for mascot.jpg");
-			};
-		},
-		cat = {
-			const path = strings::to_c("cat.png");
-			defer free(path);
-			yield match (image::load_texture(render, path)) {
-			case let tex: *sdl2::texture =>
-				yield tex;
-			case null =>
-				fmt::fatal("sdl2::image::load_texture failed for cat.png");
-			};
-		},
+		window = win,
+		render = render,
+		hare = load_texture(render, "mascot.jpg"),
+		cat = load_texture(render, "cat.png"),
 		hare_x = 100,
 		hare_y = 100,
+		hare_dx = 2,
+		hare_dy = 2,
 		...
 	};
-	defer sdl2::destroy_texture(state.hare);
-	defer sdl2::destroy_texture(state.cat);
-
-	draw_frame(&state, render);
+	defer sdl2::destroy_texture(state.hare.tex);
+	defer sdl2::destroy_texture(state.cat.tex);
 
 	let ev = sdl2::event { ... };
-	for (sdl2::wait_event(&ev) == 1) {
-		switch (ev.event_type) {
+	for (true) {
+		if (sdl2::poll_event(&ev) == 1) switch (ev.event_type) {
 		case event_type::QUIT =>
 			break;
 		case => void;
 		};
+
+		update(&state);
+		draw(&state);
+
+		sdl2::delay(1000 / 60);
 	};
 
 	os::exit(0); // https://todo.sr.ht/~sircmpwn/hare/525
 };
 
-fn draw_frame(state: *state, render: *sdl2::renderer) void = {
-	sdl2::set_render_draw_color(render, 50, 50, 50, 255);
-	sdl2::render_clear(render);
-	draw_tex(render, state.cat, state.cat_x, state.cat_y);
-	draw_tex(render, state.hare, state.hare_x, state.hare_y);
-	sdl2::render_present(render);
+fn load_texture(render: *sdl2::renderer, path: str) texture = {
+	const path = strings::to_c(path);
+	defer free(path);
+
+	const tex = match (image::load_texture(render, path)) {
+	case let tex: *sdl2::texture =>
+		yield tex;
+	case null =>
+		fmt::fatal("sdl2::image::load_texture failed for cat.png");
+	};
+
+	let w = 0, h = 0;
+	sdl2::query_texture(tex, null, null, &w, &h);
+	return texture {
+		tex = tex,
+		w = w,
+		h = h,
+	};
 };
 
-fn draw_tex(
-	render: *sdl2::renderer,
-	tex: *sdl2::texture,
-	x: int,
-	y: int,
-) void = {
+fn update(state: *state) void = {
 	let width = 0, height = 0;
-	sdl2::query_texture(tex, null, null, &width, &height);
-	sdl2::render_copy(render, tex, null, &sdl2::rect {
+	sdl2::get_window_size(state.window, &width, &height);
+
+	state.hare_x += state.hare_dx;
+	state.hare_y += state.hare_dy;
+	if (state.hare_x <= 0 || state.hare_x + state.hare.w >= width) {
+		state.hare_dx = -state.hare_dx;
+	};
+	if (state.hare_y <= 0 || state.hare_y + state.hare.h >= height) {
+		state.hare_dy = -state.hare_dy;
+	};
+};
+
+fn draw(state: *state) void = {
+	sdl2::set_render_draw_color(state.render, 50, 50, 50, 255);
+	sdl2::render_clear(state.render);
+	draw_tex(state, &state.hare, state.hare_x, state.hare_y);
+	draw_tex(state, &state.cat, state.cat_x, state.cat_y);
+	sdl2::render_present(state.render);
+};
+
+fn draw_tex(state: *state, tex: *texture, x: int, y: int) void = {
+	sdl2::render_copy(state.render, tex.tex, null, &sdl2::rect {
 		x = x,
 		y = y,
-		w = width,
-		h = height,
+		w = tex.w,
+		h = tex.h,
 	});
 };
