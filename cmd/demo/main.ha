@@ -1,35 +1,23 @@
 use fmt;
 use os;
-use sdl2::{
-	controller_axis,
-	event_type,
-	renderer_flags,
-	window_flags,
-};
 use sdl2;
+use sdl2::{ controller_axis, event_type, renderer_flags, window_flags };
 use sdl2::image;
 use strings;
 
-type texture = struct {
+type object = struct {
 	tex: *sdl2::texture,
-	w: int,
-	h: int,
+	w: int, h: int,
+	x: int, y: int,
+	dx: int, dy: int,
 };
 
 type state = struct {
 	quit: bool,
 	window: *sdl2::window,
 	render: *sdl2::renderer,
-	hare: texture,
-	cat: texture,
-	hare_x: int,
-	hare_y: int,
-	hare_dx: int,
-	hare_dy: int,
-	cat_x: int,
-	cat_y: int,
-	cat_dx: int,
-	cat_dy: int,
+	hare: object,
+	cat: object,
 };
 
 fn update(state: *state) void = {
@@ -41,10 +29,10 @@ fn update(state: *state) void = {
 	case event_type::CONTROLLERAXISMOTION =>
 		let delta = ev.caxis.value: int * 10 / sdl2::JOYSTICK_AXIS_MAX;
 		if (axis_x(ev.caxis.axis)) {
-			state.cat_dx = delta;
+			state.cat.dx = delta;
 		};
 		if (axis_y(ev.caxis.axis)) {
-			state.cat_dy = delta;
+			state.cat.dy = delta;
 		};
 	case => void;
 	};
@@ -52,45 +40,45 @@ fn update(state: *state) void = {
 	let width = 0, height = 0;
 	sdl2::get_window_size(state.window, &width, &height);
 
-	state.hare_x += state.hare_dx;
-	state.hare_y += state.hare_dy;
-	if (state.hare_x <= 0 || state.hare_x + state.hare.w >= width) {
-		state.hare_dx = -state.hare_dx;
+	state.hare.x += state.hare.dx;
+	state.hare.y += state.hare.dy;
+	if (state.hare.x <= 0 || state.hare.x + state.hare.w >= width) {
+		state.hare.dx = -state.hare.dx;
 	};
-	if (state.hare_y <= 0 || state.hare_y + state.hare.h >= height) {
-		state.hare_dy = -state.hare_dy;
+	if (state.hare.y <= 0 || state.hare.y + state.hare.h >= height) {
+		state.hare.dy = -state.hare.dy;
 	};
 
-	state.cat_x += state.cat_dx;
-	state.cat_y += state.cat_dy;
-	if (state.cat_x <= 0) {
-		state.cat_x = 0;
+	state.cat.x += state.cat.dx;
+	state.cat.y += state.cat.dy;
+	if (state.cat.x <= 0) {
+		state.cat.x = 0;
 	};
-	if (state.cat_x > width - state.cat.w) {
-		state.cat_x = width - state.cat.w;
+	if (state.cat.x > width - state.cat.w) {
+		state.cat.x = width - state.cat.w;
 	};
-	if (state.cat_y <= 0) {
-		state.cat_y = 0;
+	if (state.cat.y <= 0) {
+		state.cat.y = 0;
 	};
-	if (state.cat_y > height - state.cat.h) {
-		state.cat_y = height - state.cat.h;
+	if (state.cat.y > height - state.cat.h) {
+		state.cat.y = height - state.cat.h;
 	};
 };
 
 fn draw(state: *state) void = {
 	sdl2::set_render_draw_color(state.render, 50, 50, 50, 255);
 	sdl2::render_clear(state.render);
-	draw_tex(state, &state.hare, state.hare_x, state.hare_y);
-	draw_tex(state, &state.cat, state.cat_x, state.cat_y);
+	draw_object(state, &state.hare);
+	draw_object(state, &state.cat);
 	sdl2::render_present(state.render);
 };
 
-fn draw_tex(state: *state, tex: *texture, x: int, y: int) void = {
-	sdl2::render_copy(state.render, tex.tex, null, &sdl2::rect {
-		x = x,
-		y = y,
-		w = tex.w,
-		h = tex.h,
+fn draw_object(state: *state, obj: *object) void = {
+	sdl2::render_copy(state.render, obj.tex, null, &sdl2::rect {
+		x = obj.x,
+		y = obj.y,
+		w = obj.w,
+		h = obj.h,
 	});
 };
 
@@ -112,7 +100,7 @@ fn axis_y(axis: controller_axis) bool = {
 	};
 };
 
-fn load_texture(render: *sdl2::renderer, path: str) texture = {
+fn load_object(render: *sdl2::renderer, path: str) object = {
 	const path = strings::to_c(path);
 	defer free(path);
 
@@ -125,10 +113,11 @@ fn load_texture(render: *sdl2::renderer, path: str) texture = {
 
 	let w = 0, h = 0;
 	sdl2::query_texture(tex, null, null, &w, &h);
-	return texture {
+	return object {
 		tex = tex,
 		w = w,
 		h = h,
+		...
 	};
 };
 
@@ -177,16 +166,15 @@ export fn main() void = {
 	let state = state {
 		window = win,
 		render = render,
-		hare = load_texture(render, "mascot.jpg"),
-		cat = load_texture(render, "cat.png"),
-		hare_x = 100,
-		hare_y = 100,
-		hare_dx = 2,
-		hare_dy = 2,
+		hare = load_object(render, "mascot.jpg"),
+		cat = load_object(render, "cat.png"),
 		...
 	};
 	defer sdl2::destroy_texture(state.hare.tex);
 	defer sdl2::destroy_texture(state.cat.tex);
+
+	state.hare.dx = 2;
+	state.hare.dy = 2;
 
 	for (!state.quit) {
 		update(&state);
