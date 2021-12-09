@@ -4,7 +4,7 @@
 demo:
 	hare build -lSDL2 -lc -T+libc cmd/demo
 
-run: demo
-	./demo
+run:
+	hare run -lSDL2 -lc -T+libc cmd/demo
 
 .PHONY: demo run
