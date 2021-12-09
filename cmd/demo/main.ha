@@ -2,11 +2,14 @@ use fmt;
 use os;
 use sdl2::{event_type, window_flags, renderer_flags};
 use sdl2;
+use sdl2::image;
 use strings;
 
 export fn main() void = {
 	sdl2::init(sdl2::init_flags::VIDEO);
 	defer sdl2::quit();
+	image::init(image::init_flags::PNG);
+	defer image::quit();
 
 	const title = strings::to_c("Hare SDL2 demo");
 	defer free(title);
@@ -28,8 +31,27 @@ export fn main() void = {
 	};
 	defer sdl2::destroy_renderer(render);
 
-	sdl2::set_render_draw_color(render, 255, 0, 0, 255);
+	const path = strings::to_c("cat.png");
+	defer free(path);
+	const texture = match (image::load_texture(render, path)) {
+	case let tex: *sdl2::texture =>
+		yield tex;
+	case null =>
+		fmt::fatal("sdl2::image::load_texture failed");
+	};
+	defer sdl2::destroy_texture(texture);
+
+	let width = 0, height = 0;
+	sdl2::query_texture(texture, null, null, &width, &height);
+
+	sdl2::set_render_draw_color(render, 50, 50, 50, 255);
 	sdl2::render_clear(render);
+	sdl2::render_copy(render, texture, null, &sdl2::rect {
+		x = 0,
+		y = 0,
+		w = width,
+		h = height,
+	});
 	sdl2::render_present(render);
 
 	let ev = sdl2::event { ... };

@@ -68,3 +68,19 @@ export @symbol("SDL_RenderClear") fn render_clear(renderer: *renderer) int;
 
 // Update the screen with rendering performed.
 export @symbol("SDL_RenderPresent") fn render_present(renderer: *renderer) void;
+
+// Destroy the specified texture.
+export @symbol("SDL_DestroyTexture") fn destroy_texture(texture: *texture) void;
+
+// Query the attributes of a texture
+//
+// Returns 0 on success, or -1 if the texture is not valid.
+export @symbol("SDL_QueryTexture") fn query_texture(texture: *texture,
+	format: nullable *u32, access: nullable *int,
+	w: nullable *int, h: nullable *int) int;
+
+// Copy a portion of the texture to the current rendering target.
+//
+// Returns 0 on success, or -1 on error
+export @symbol("SDL_RenderCopy") fn render_copy(renderer: *renderer,
+	texture: *texture, srcrect: nullable *rect, dstrect: nullable *rect) int;

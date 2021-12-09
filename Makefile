@@ -1,10 +1,12 @@
 .POSIX:
 .SUFFIXES:
 
+LIBS=-lc -lSDL2_image -lSDL2
+
 demo:
-	hare build -lSDL2 -lc -T+libc cmd/demo
+	hare build $(LIBS) -T+libc cmd/demo
 
 run:
-	hare run -lSDL2 -lc -T+libc cmd/demo
+	hare run $(LIBS) -T+libc cmd/demo
 
 .PHONY: demo run
