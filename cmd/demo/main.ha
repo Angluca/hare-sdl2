@@ -78,11 +78,8 @@ export fn main() void = {
 	for (!state.quit) {
 		update(&state);
 		draw(&state);
-
 		sdl2::delay(1000 / 60);
 	};
-
-	os::exit(0); // https://todo.sr.ht/~sircmpwn/hare/525
 };
 
 fn update(state: *state) void = {
