@@ -22,6 +22,32 @@ export type controller_axis = enum u8 {
     INVALID = 255,
 };
 
+// The list of buttons available from a controller
+export type controller_button = enum u8 {
+	INVALID = 255,
+	A = 0,
+	B,
+	X,
+	Y,
+	BACK,
+	GUIDE,
+	START,
+	LEFTSTICK,
+	RIGHTSTICK,
+	LEFTSHOULDER,
+	RIGHTSHOULDER,
+	DPAD_UP,
+	DPAD_DOWN,
+	DPAD_LEFT,
+	DPAD_RIGHT,
+	MISC1,
+	PADDLE1,
+	PADDLE2,
+	PADDLE3,
+	PADDLE4,
+	TOUCHPAD,
+};
+
 // Check if the given joystick is supported by the game controller interface.
 // 
 // 'joystick_index' is the same as the 'device_index' passed to
