@@ -21,39 +21,37 @@ type state = struct {
 };
 
 export fn main() void = {
+	match (run()) {
+	case let err: sdl2::error =>
+		fmt::fatal("SDL2 error: {}", sdl2::strerror(err));
+	case void => void;
+	};
+};
+
+fn run() (void | sdl2::error) = {
 	sdl2::init(sdl2::init_flags::VIDEO | sdl2::init_flags::GAMECONTROLLER);
 	defer sdl2::quit();
 	image::init(image::init_flags::PNG | image::init_flags::JPG);
 	defer image::quit();
 
-	const title = strings::to_c("Hare SDL2 demo");
-	defer free(title);
-	const win = match (sdl2::create_window(title,
+	const win = sdl2::create_window("Hare SDL2 demo",
 		sdl2::WINDOWPOS_UNDEFINED, sdl2::WINDOWPOS_UNDEFINED,
-		640, 480, window_flags::NONE)) {
-	case let win: *sdl2::window =>
-		yield win;
-	case null =>
-		fmt::fatal("sdl2::create_window failed");
-	};
+		640, 480, window_flags::NONE)?;
 	defer sdl2::destroy_window(win);
 
-	const render = match (sdl2::create_renderer(win, -1, renderer_flags::NONE)) {
-	case let rend: *sdl2::renderer =>
-		yield rend;
-	case null =>
-		fmt::fatal("sdl2::create_renderer failed");
-	};
+	const render = sdl2::create_renderer(win, -1, renderer_flags::NONE)?;
 	defer sdl2::destroy_renderer(render);
 
 	let controller: nullable *sdl2::gamecontroller = null;
-	for (let i = 0; i < sdl2::numjoysticks(); i += 1) {
+	for (let i = 0; i < sdl2::numjoysticks()?; i += 1) {
 		if (!sdl2::is_game_controller(i)) {
 			continue;
 		};
-		controller = sdl2::game_controller_open(i);
-		if (controller != null) {
+		match (sdl2::game_controller_open(i)) {
+		case let c: *sdl2::gamecontroller =>
+			controller = c;
 			break;
+		case sdl2::error => void;
 		};
 	};
 	defer match (controller) {
@@ -65,8 +63,8 @@ export fn main() void = {
 	let state = state {
 		window = win,
 		render = render,
-		hare = load_object(render, "mascot.jpg"),
-		cat = load_object(render, "cat.png"),
+		hare = load_object(render, "mascot.jpg")?,
+		cat = load_object(render, "cat.png")?,
 		...
 	};
 	defer sdl2::destroy_texture(state.hare.tex);
@@ -76,15 +74,15 @@ export fn main() void = {
 	state.hare.dy = 2;
 
 	for (!state.quit) {
-		update(&state);
-		draw(&state);
+		update(&state)?;
+		draw(&state)?;
 		sdl2::delay(1000 / 60);
 	};
 };
 
-fn update(state: *state) void = {
+fn update(state: *state) (void | sdl2::error) = {
 	let ev = sdl2::event { ... };
-	for (sdl2::poll_event(&ev) == 1) switch (ev.event_type) {
+	for (sdl2::poll_event(&ev)? == 1) switch (ev.event_type) {
 	case event_type::QUIT =>
 		state.quit = true;
 		return;
@@ -131,26 +129,26 @@ fn update(state: *state) void = {
 	};
 };
 
-fn draw(state: *state) void = {
+fn draw(state: *state) (void | sdl2::error) = {
 	if (state.nbutton == 0) {
-		sdl2::set_render_draw_color(state.render, 50, 50, 50, 255);
+		sdl2::set_render_draw_color(state.render, 50, 50, 50, 255)?;
 	} else {
-		sdl2::set_render_draw_color(state.render, 50, 50, 200, 255);
+		sdl2::set_render_draw_color(state.render, 50, 50, 200, 255)?;
 	};
-	sdl2::render_clear(state.render);
+	sdl2::render_clear(state.render)?;
 
-	draw_object(state, &state.hare);
-	draw_object(state, &state.cat);
+	draw_object(state, &state.hare)?;
+	draw_object(state, &state.cat)?;
 	sdl2::render_present(state.render);
 };
 
-fn draw_object(state: *state, obj: *object) void = {
+fn draw_object(state: *state, obj: *object) (void | sdl2::error) = {
 	sdl2::render_copy(state.render, obj.tex, null, &sdl2::rect {
 		x = obj.x,
 		y = obj.y,
 		w = obj.w,
 		h = obj.h,
-	});
+	})?;
 };
 
 fn axis_x(axis: controller_axis) bool = {
@@ -171,19 +169,10 @@ fn axis_y(axis: controller_axis) bool = {
 	};
 };
 
-fn load_object(render: *sdl2::renderer, path: str) object = {
-	const path = strings::to_c(path);
-	defer free(path);
-
-	const tex = match (image::load_texture(render, path)) {
-	case let tex: *sdl2::texture =>
-		yield tex;
-	case null =>
-		fmt::fatal("sdl2::image::load_texture failed for {}", path);
-	};
-
+fn load_object(render: *sdl2::renderer, path: str) (object | sdl2::error) = {
+	const tex = image::load_texture(render, path)?;
 	let w = 0, h = 0;
-	sdl2::query_texture(tex, null, null, &w, &h);
+	sdl2::query_texture(tex, null, null, &w, &h)?;
 	return object {
 		tex = tex,
 		w = w,

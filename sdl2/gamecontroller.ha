@@ -27,16 +27,20 @@ export type controller_axis = enum u8 {
 // 'joystick_index' is the same as the 'device_index' passed to
 // [[joystick_open]].
 // 
-// Returns SDL_TRUE if the given joystick is supported by the game controller
-// interface, SDL_FALSE if it isn't or it's an invalid index.
+// Returns true if the given joystick is supported by the game controller
+// interface, false if it isn't or it's an invalid index.
 export @symbol("SDL_IsGameController") fn is_game_controller(
 	joystick_index: int) bool;
 
+@symbol("SDL_GameControllerOpen") fn _game_controller_open(
+	joystick_index: int) nullable *gamecontroller;
+
 // Get the SDL_GameController associated with an instance id.
-//
-// Returns a [[controller]] on success or NULL on failure.
-export @symbol("SDL_GameControllerOpen") fn game_controller_open(
-	joystick_index: int) *gamecontroller;
+export fn game_controller_open(
+	joystick_index: int,
+) (*gamecontroller | error) = {
+	return wrapptr(_game_controller_open(joystick_index))?: *gamecontroller;
+};
 
 // Close a game controller previously opened with [[game_controller_open]].
 export @symbol("SDL_GameControllerClose") fn game_controller_close(

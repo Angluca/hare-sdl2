@@ -377,6 +377,9 @@ export type eventaction = enum {
     GETEVENT,
 };
 
+@symbol("SDL_PeepEvents") fn _peep_events(events: *event, numevents: int,
+	action: eventaction, mintype: event_type, maxtype: event_type) int;
+
 // Checks the event queue for messages and optionally returns them.
 //
 // If 'action' is ADDEVENT, up to 'numevents' events will be added to the back
@@ -390,11 +393,16 @@ export type eventaction = enum {
 // queue, within the specified minimum and maximum type, will be returned and
 // will be removed from the queue.
 //
-// Returns the number of events actually stored, or -1 if there was an error.
-//
 // This function is thread-safe.
-export @symbol("SDL_PeepEvents") fn peep_events(events: *event, numevents: int,
-	action: eventaction, mintype: event_type, maxtype: event_type) int;
+export fn peep_events(
+	events: *event,
+	numevents: int,
+	action: eventaction,
+	mintype: event_type,
+	maxtype: event_type,
+) (int | error) = {
+	return wrapint(_peep_events(events, numevents, action, mintype, maxtype));
+};
 
 // Checks to see if certain event types are in the event queue.
 export @symbol("SDL_HasEvent") fn has_event(event_type: event_type) bool;
@@ -414,35 +422,48 @@ export @symbol("SDL_FlushEvent") fn flush_event(event_type: event_type) void;
 // on the main thread immediately before the flush call.
 export @symbol("SDL_FlushEvents") fn flush_events(mintype: event_type, maxtype: event_type) void;
 
+@symbol("SDL_PollEvent") fn _poll_event(event: nullable *event) int;
+
 // Polls for currently pending events.
 //
 // Returns 1 if there are any pending events, or 0 if there are none available.
 //
 // If 'event' is not null, the next event is removed from the queue and stored
 // in that area.
-export @symbol("SDL_PollEvent") fn poll_event(event: nullable *event) int;
+export fn poll_event(event: nullable *event) (int | error) = {
+	return wrapint(_poll_event(event));
+};
+
+@symbol("SDL_WaitEvent") fn _wait_event(event: nullable *event) int;
 
 // Waits indefinitely for the next available event.
 //
-// Returns 1, or 0 if there was an error while waiting for events.
-//
 // If 'event' is not null, the next event is removed from the queue and stored
 // in that area.
-export @symbol("SDL_WaitEvent") fn wait_event(event: nullable *event) int;
+export fn wait_event(event: nullable *event) (void | error) = {
+	return wrapvoid(_wait_event(event));
+};
+
+@symbol("SDL_WaitEventTimeout") fn _wait_event_timeout(
+	event: nullable *event, timeout: int) int;
 
 // Waits until the specified timeout (in milliseconds) for the next available event.
-// 
-// Returns 1, or 0 if there was an error while waiting for events.
 // 
 // If 'event' is not null, the next event is removed from the queue and stored
 // in that area. The 'timeout' is the time (in milliseconds) to wait for next
 // event.
-export @symbol("SDL_WaitEventTimeout") fn wait_event_timeout(event: nullable *event, timeout: int) int;
+export fn wait_event_timeout(
+	event: nullable *event,
+	timeout: int,
+) (void | error) = {
+	return wrapvoid(_wait_event_timeout(event, timeout));
+};
+
+@symbol("SDL_PushEvent") fn _push_event(event: *event) int;
 
 // Add an event to the event queue.
-//
-// Returns 1 on success, 0 if the event was filtered, or -1 if the event queue
-// was full or there was some other error.
-export @symbol("SDL_PushEvent") fn push_event(event: *event) int;
+export fn push_event(event: *event) (void | error) = {
+	return wrapvoid(_push_event(event));
+};
 
 // TODO: Finish rigging up other SDL_events.h bits

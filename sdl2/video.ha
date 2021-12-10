@@ -1,4 +1,5 @@
 // TODO: Flesh me out
+use strings;
 
 // The type used to identify a window. (Opaque)
 export type window = void;
@@ -31,6 +32,9 @@ export type window_flags = enum u32 {
 
 export def WINDOWPOS_UNDEFINED: int = 0x1FFF0000;
 export def WINDOWPOS_CENTERED: int = 0x2FFF0000;
+
+@symbol("SDL_CreateWindow") fn _create_window(title: const *char,
+	x: int, y: int, w: int, h: int, flags: window_flags) nullable *window;
 
 // Create a window with the specified position, dimensions, and flags.
 //
@@ -66,8 +70,18 @@ export def WINDOWPOS_CENTERED: int = 0x2FFF0000;
 // removed in a future version of SDL.
 //
 // See also: [[destroy_window]] [[gl_loadlibrary]], [[vulkan_loadlibrary]].
-export @symbol("SDL_CreateWindow") fn create_window(title: const *char,
-	x: int, y: int, w: int, h: int, flags: window_flags) nullable *window;
+export fn create_window(
+	title: str,
+	x: int,
+	y: int,
+	w: int,
+	h: int,
+	flags: window_flags,
+) (*window | error) = {
+	let title = strings::to_c(title);
+	defer free(title);
+	return wrapptr(_create_window(title, x, y, w, h, flags))?: *window;
+};
 
 // Destroy a window.
 export @symbol("SDL_DestroyWindow") fn destroy_window(window: *window) void;

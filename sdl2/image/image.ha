@@ -1,6 +1,7 @@
 // TODO: Flesh me out
 // TODO: SDL_RWops
 use sdl2;
+use strings;
 
 // Flags for [[init]].
 export type init_flags = enum int {
@@ -20,9 +21,24 @@ export @symbol("IMG_Init") fn init(flags: init_flags) int;
 // Unloads libraries loaded with [[init]]
 export @symbol("IMG_Quit") fn quit() void;
 
+@symbol("IMG_Load") fn _load(file: const *char) nullable *sdl2::surface;
+
 // Load an image from a file path.
-export @symbol("IMG_Load") fn load(file: const *char) nullable *sdl2::surface;
+export fn load(file: str) (*sdl2::surface | sdl2::error) = {
+	const file = strings::to_c(file);
+	defer free(file);
+	return sdl2::wrapptr(_load(file))?: *sdl2::surface;
+};
+
+@symbol("IMG_LoadTexture") fn _load_texture(renderer: *sdl2::renderer,
+	file: const *char) nullable *sdl2::texture;
 
 // Load an image directly into a render texture.
-export @symbol("IMG_LoadTexture") fn load_texture(renderer: *sdl2::renderer,
-	file: const *char) nullable *sdl2::texture;
+export fn load_texture(
+	renderer: *sdl2::renderer,
+	file: str,
+) (*sdl2::texture | sdl2::error) = {
+	const file = strings::to_c(file);
+	defer free(file);
+	return sdl2::wrapptr(_load_texture(renderer, file))?: *sdl2::texture;
+};
