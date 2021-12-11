@@ -139,6 +139,17 @@ export fn set_texture_alpha_mod(texture: *texture, a: u8) (void | error) = {
 	return wrapvoid(_set_texture_alpha_mod(texture, a));
 };
 
+@symbol("SDL_SetTextureBlendMode") fn _set_texture_blend_mode(
+	texture: *texture, mode: blend_mode) int;
+
+// Set the blend mode for a texture, used by SDL_RenderCopy().
+export fn set_texture_blend_mode(
+	texture: *texture,
+	mode: blend_mode,
+) (void | error) = {
+	return wrapvoid(_set_texture_blend_mode(texture, mode));
+};
+
 @symbol("SDL_RenderCopy") fn _render_copy(renderer: *renderer,
 	texture: *texture, srcrect: nullable *rect, dstrect: nullable *rect) int;
 
