@@ -123,6 +123,22 @@ export fn set_texture_color_mod(
 	return wrapvoid(_set_texture_color_mod(texture, r, g, b));
 };
 
+@symbol("SDL_SetTextureAlphaMod") fn _set_texture_alpha_mod(texture: *texture, a: u8) int;
+
+// Set an additional alpha value multiplied into render copy operations.
+//
+// When this texture is rendered, during the copy operation the source alpha
+// value is modulated by this alpha value according to the following formula:
+//
+// `srcA = srcA * (alpha / 255)`
+//
+// Alpha modulation is not always supported by the renderer; it will return an
+// error if alpha modulation is not supported.
+export fn set_texture_alpha_mod(texture: *texture, a: u8) (void | error) = {
+	// TODO: Double check errors
+	return wrapvoid(_set_texture_alpha_mod(texture, a));
+};
+
 @symbol("SDL_RenderCopy") fn _render_copy(renderer: *renderer,
 	texture: *texture, srcrect: nullable *rect, dstrect: nullable *rect) int;
 
