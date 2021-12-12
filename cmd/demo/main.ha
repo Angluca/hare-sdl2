@@ -1,4 +1,5 @@
 use fmt;
+use fs;
 use sdl2;
 use sdl2::{ controller_axis, event_type, renderer_flags, window_flags };
 use sdl2::image;
@@ -25,12 +26,16 @@ export fn main() void = {
 	match (run()) {
 	case let err: sdl2::error =>
 		fmt::fatal("SDL2 error: {}", sdl2::strerror(err));
+	case let err: fs::error =>
+		fmt::fatal("Error: {}", fs::strerror(err));
 	case void => void;
 	};
 };
 
-fn run() (void | sdl2::error) = {
-	sdl2::init(sdl2::init_flags::VIDEO | sdl2::init_flags::GAMECONTROLLER)!;
+fn run() (void | fs::error | sdl2::error) = {
+	sdl2::init(sdl2::init_flags::VIDEO
+		| sdl2::init_flags::AUDIO
+		| sdl2::init_flags::GAMECONTROLLER)!;
 	defer sdl2::quit();
 	image::init(image::init_flags::PNG | image::init_flags::JPG)!;
 	defer image::quit();
@@ -66,6 +71,9 @@ fn run() (void | sdl2::error) = {
 	case let c: *sdl2::gamecontroller =>
 		sdl2::game_controller_close(c);
 	};
+
+	let sample = mixer::load_file("sample.ogg")?;
+	defer mixer::free_chunk(sample);
 
 	let state = state {
 		window = win,
