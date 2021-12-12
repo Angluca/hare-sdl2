@@ -13,8 +13,12 @@ export type init_flags = enum uint {
 	EVERYTHING = TIMER | AUDIO | VIDEO | EVENTS | JOYSTICK | HAPTIC | GAMECONTROLLER | SENSOR,
 };
 
+@symbol("SDL_Init") fn _init(flags: init_flags) int;
+
 // This function initializes the subsystems specified by 'flags'.
-export @symbol("SDL_Init") fn init(flags: init_flags) void;
+export fn init(flags: init_flags) (void | error) = {
+	return wrapvoid(_init(flags));
+};
 
 // This function cleans up all initialized subsystems. You should call it upon
 // all exit conditions.

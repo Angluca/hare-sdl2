@@ -12,11 +12,13 @@ export type init_flags = enum int {
 	WEBP = 0x00000008,
 };
 
+@symbol("IMG_Init") fn _init(flags: init_flags) int;
+
 // Loads dynamic libraries and prepares them for use. Flags should be one or
-// more flags from IMG_InitFlags OR'd together.
-//
-// Returns the flags successfully initialized, or 0 on failure.
-export @symbol("IMG_Init") fn init(flags: init_flags) int;
+// more flags from [[init_flags]] OR'd together.
+export fn init(flags: init_flags) (void | sdl2::error) = {
+	return sdl2::wrapvoid(_init(flags));
+};
 
 // Unloads libraries loaded with [[init]]
 export @symbol("IMG_Quit") fn quit() void;
