@@ -2,6 +2,7 @@ use fmt;
 use sdl2;
 use sdl2::{ controller_axis, event_type, renderer_flags, window_flags };
 use sdl2::image;
+use sdl2::mixer;
 use strings;
 
 type object = struct {
@@ -33,6 +34,12 @@ fn run() (void | sdl2::error) = {
 	defer sdl2::quit();
 	image::init(image::init_flags::PNG | image::init_flags::JPG);
 	defer image::quit();
+
+	mixer::init(mixer::init_flags::OGG)!;
+	defer mixer::quit();
+	mixer::open_audio(mixer::DEFAULT_FREQUENCY, mixer::DEFAULT_FORMAT,
+		mixer::DEFAULT_CHANNELS, 1024)!;
+	defer mixer::close_audio();
 
 	const win = sdl2::create_window("Hare SDL2 demo",
 		sdl2::WINDOWPOS_UNDEFINED, sdl2::WINDOWPOS_UNDEFINED,

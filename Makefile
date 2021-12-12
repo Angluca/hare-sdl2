@@ -1,7 +1,7 @@
 .POSIX:
 .SUFFIXES:
 
-LIBS=-lc -lSDL2_image -lSDL2
+LIBS=-lc -lSDL2_image -lSDL2_mixer -lSDL2
 
 demo:
 	hare build $(LIBS) cmd/demo
