@@ -74,6 +74,7 @@ fn run() (void | fs::error | sdl2::error) = {
 
 	let sample = mixer::load_file("sample.ogg")?;
 	defer mixer::free_chunk(sample);
+	mixer::play_channel(0, sample, -1)?;
 
 	let state = state {
 		window = win,

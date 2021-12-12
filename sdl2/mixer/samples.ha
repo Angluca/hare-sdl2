@@ -31,3 +31,9 @@ export fn load_file(src: str) (*chunk | fs::error | sdl2::error) = {
 // chunk after this without loading a new sample to it. Note: It's a bad idea to
 // free a chunk that is still being played... 
 export @symbol("Mix_FreeChunk") fn free_chunk(chunk: *chunk) void;
+
+// Maximum volume for a chunk.
+export def MAX_VOLUME: int = 128; // XXX: SDL_mixer derives this from SDL_MIX_MAXVOLUME
+
+// Sets the chunk volume as specified, returning the previous value.
+export @symbol("Mix_VolumeChunk") fn volume_chunk(chunk: *chunk, volume: int) int;
