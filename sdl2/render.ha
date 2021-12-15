@@ -150,6 +150,17 @@ export fn set_texture_blend_mode(
 	return wrapvoid(_set_texture_blend_mode(texture, mode));
 };
 
+@symbol("SDL_SetRenderDrawBlendMode") fn _set_render_draw_blend_mode(
+	renderer: *renderer, mode: blend_mode) int;
+
+// Set the blend mode used for drawing operations (fill and line).
+export fn set_render_draw_blend_mode(
+	renderer: *renderer,
+	mode: blend_mode,
+) (void | error) = {
+	return wrapvoid(_set_render_draw_blend_mode(renderer, mode));
+};
+
 @symbol("SDL_RenderCopy") fn _render_copy(renderer: *renderer,
 	texture: *texture, srcrect: nullable *rect, dstrect: nullable *rect) int;
 
@@ -161,4 +172,26 @@ export fn render_copy(
 	dstrect: nullable *rect,
 ) (void | error) = {
 	return wrapvoid(_render_copy(renderer, texture, srcrect, dstrect));
+};
+
+@symbol("SDL_RenderDrawRect") fn _render_draw_rect(
+	renderer: *renderer, rect: const nullable *rect) int;
+
+// Draw a rectangle on the current rendering target.
+export fn render_draw_rect(
+	renderer: *renderer,
+	rect: const nullable *rect,
+) (void | error) = {
+	return wrapvoid(_render_draw_rect(renderer, rect));
+};
+
+@symbol("SDL_RenderFillRect") fn _render_fill_rect(
+	renderer: *renderer, rect: const nullable *rect) int;
+
+// Fills a rectangle on the current rendering target.
+export fn render_fill_rect(
+	renderer: *renderer,
+	rect: const nullable *rect,
+) (void | error) = {
+	return wrapvoid(_render_fill_rect(renderer, rect));
 };
