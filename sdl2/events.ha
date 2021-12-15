@@ -106,7 +106,7 @@ export type keyboard_event = struct {
 	repeat: u8,
 	padding2: u8,
 	padding3: u8,
-	keysym: uint, // TODO: Rig me up with the keysym type
+	keysym: keysym,
 };
 
 // Size of the [[text_editing_event]] 'text' field.
