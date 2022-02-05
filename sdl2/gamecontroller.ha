@@ -71,3 +71,29 @@ export fn game_controller_open(
 // Close a game controller previously opened with [[game_controller_open]].
 export @symbol("SDL_GameControllerClose") fn game_controller_close(
 	gamecontroller: *gamecontroller) void;
+
+@symbol("SDL_GameControllerRumble") fn _game_controller_rumble(
+	gamecontroller: *gamecontroller,
+	low_frequency_rumble: u16,
+	high_frequency_rumble: u16,
+	duration_ms: u32) int;
+
+// Start a rumble effect on a game controller.
+//
+// Each call to this function cancels any previous rumble effect, and calling
+// it with 0 intensity stops any rumbling.
+//
+// The low-frequency motor is generally on the left, and the high-frequency
+// motor is generally on the right.
+export fn game_controller_rumble(
+	gamecontroller: *gamecontroller,
+	low_frequency_rumble: u16,
+	high_frequency_rumble: u16,
+	duration_ms: u32,
+) (void | error) = {
+	return wrapvoid(_game_controller_rumble(
+		gamecontroller,
+		low_frequency_rumble,
+		high_frequency_rumble,
+		duration_ms));
+};

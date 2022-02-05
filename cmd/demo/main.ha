@@ -62,6 +62,7 @@ fn run() (void | fs::error | sdl2::error) = {
 		match (sdl2::game_controller_open(i)) {
 		case let c: *sdl2::gamecontroller =>
 			controller = c;
+			sdl2::game_controller_rumble(c, 0x4000, 0x4000, 1000): void;
 			break;
 		case sdl2::error => void;
 		};
