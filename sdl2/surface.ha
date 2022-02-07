@@ -1,10 +1,10 @@
 // A collection of pixels used in software blitting.
-// 
+//
 // This structure should be treated as read-only, except for 'pixels', which, if
 // not null, contains the raw pixel data for the surface.
-export type surface = struct {
+export type SDL_Surface = struct {
 	flags: u32,
-	format: *pixelformat,
+	format: *SDL_PixelFormat,
 	w: int,
 	h: int,
 	pitch: int,
@@ -15,11 +15,11 @@ export type surface = struct {
 	locked: int,
 	lock_data: *void,
 
-	clip_rect: rect,
+	clip_rect: SDL_Rect,
 
-	map: *blitmap,
+	map: *SDL_BlitMap,
 
 	refcount: int,
 };
 
-export type blitmap = void;
+export type SDL_BlitMap = void;

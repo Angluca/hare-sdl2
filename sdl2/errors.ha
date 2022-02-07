@@ -8,7 +8,7 @@ export fn strerror(err: error) str = {
 	return err: str;
 };
 
-@symbol("SDL_GetError") fn geterror() const *char;
+@symbol("SDL_GetError") fn SDL_GetError() const *char;
 
 export fn wrapvoid(ret: int) (void | error) = {
 	wrapint(ret)?;
@@ -16,7 +16,7 @@ export fn wrapvoid(ret: int) (void | error) = {
 
 export fn wrapint(ret: int) (int | error) = {
 	if (ret < 0) {
-		return strings::fromc(geterror()): error;
+		return strings::fromc(SDL_GetError()): error;
 	};
 	return ret;
 };
@@ -26,6 +26,6 @@ export fn wrapptr(ret: nullable *void) (*void | error) = {
 	case let v: *void =>
 		return v;
 	case null =>
-		return strings::fromc(geterror()): error;
+		return strings::fromc(SDL_GetError()): error;
 	};
 };

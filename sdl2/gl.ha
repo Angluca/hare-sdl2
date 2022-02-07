@@ -1,12 +1,12 @@
-export type glcontext = void;
+export type SDL_GLContext = void;
 
-export type glprofile = enum int {
+export type SDL_GLprofile = enum int {
 	GL_CONTEXT_PROFILE_CORE = 0x0001,
 	GL_CONTEXT_PROFILE_COMPATIBILITY = 0x0002,
 	GL_CONTEXT_PROFILE_ES = 0x0004,
 };
 
-export type glattr = enum {
+export type SDL_GLattr = enum {
 	GL_RED_SIZE,
 	GL_GREEN_SIZE,
 	GL_BLUE_SIZE,
@@ -36,10 +36,10 @@ export type glattr = enum {
 	GL_CONTEXT_NO_ERROR,
 };
 
-export @symbol("SDL_GL_CreateContext") fn gl_create_context(
-	window: *window) *glcontext;
-export @symbol("SDL_GL_GetProcAddress") fn gl_get_proc_address(
+export @symbol("SDL_GL_CreateContext") fn SDL_GL_CreateContext(
+	window: *SDL_Window) *SDL_GLContext;
+export @symbol("SDL_GL_GetProcAddress") fn SDL_GL_GetProcAddress(
 	proc: *const char) *void;
-export @symbol("SDL_GL_SetAttribute") fn gl_set_attribute(
-	attr: glattr, value: int) *void;
-export @symbol("SDL_GL_SwapWindow") fn gl_swap_window(window: *window) void;
+export @symbol("SDL_GL_SetAttribute") fn SDL_GL_SetAttribute(
+	attr: SDL_GLattr, value: int) *void;
+export @symbol("SDL_GL_SwapWindow") fn SDL_GL_SwapWindow(window: *SDL_Window) void;

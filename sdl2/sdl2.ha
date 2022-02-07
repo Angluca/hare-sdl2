@@ -1,4 +1,4 @@
-// These are the flags which may be passed to [[init]]. You should specify the
+// These are the flags which may be passed to [[SDL_Init]]. You should specify the
 // subsystems which you will be using in your application.
 export type init_flags = enum uint {
 	TIMER = 0x00000001u,
@@ -13,13 +13,13 @@ export type init_flags = enum uint {
 	EVERYTHING = TIMER | AUDIO | VIDEO | EVENTS | JOYSTICK | HAPTIC | GAMECONTROLLER | SENSOR,
 };
 
-@symbol("SDL_Init") fn _init(flags: init_flags) int;
+@symbol("SDL_Init") fn _SDL_Init(flags: init_flags) int;
 
 // This function initializes the subsystems specified by 'flags'.
-export fn init(flags: init_flags) (void | error) = {
-	return wrapvoid(_init(flags));
+export fn SDL_Init(flags: init_flags) (void | error) = {
+	return wrapvoid(_SDL_Init(flags));
 };
 
 // This function cleans up all initialized subsystems. You should call it upon
 // all exit conditions.
-export @symbol("SDL_Quit") fn quit() void;
+export @symbol("SDL_Quit") fn SDL_Quit() void;

@@ -1,23 +1,23 @@
 // TODO: Flesh me out
 
-export type color = struct {
+export type SDL_Color = struct {
 	r: u8,
 	g: u8,
 	b: u8,
 	a: u8,
 };
 
-export type palette = struct {
+export type SDL_Palette = struct {
 	ncolors: int,
-	colors: *color,
+	colors: *SDL_Color,
 	version: u32,
 	refcount: int,
 };
 
 // Note: Everything in the pixel format structure is read-only.
-export type pixelformat = struct {
+export type SDL_PixelFormat = struct {
 	format: u32, // TODO
-	palette: *palette,
+	palette: *SDL_Palette,
 	bitsperpixel: u8,
 	bytesperpixel: u8,
 	padding: [2]u8,
@@ -34,5 +34,5 @@ export type pixelformat = struct {
 	bshift: u8,
 	ashift: u8,
 	refcount: int,
-	next: nullable *pixelformat,
+	next: nullable *SDL_PixelFormat,
 };

@@ -3,8 +3,8 @@
 use sdl2;
 use strings;
 
-// Flags for [[init]].
-export type init_flags = enum int {
+// Flags for [[IMG_Init]].
+export type IMG_InitFlags = enum int {
 	NONE = 0,
 	JPG = 0x00000001,
 	PNG = 0x00000002,
@@ -12,35 +12,35 @@ export type init_flags = enum int {
 	WEBP = 0x00000008,
 };
 
-@symbol("IMG_Init") fn _init(flags: init_flags) int;
+@symbol("IMG_Init") fn _IMG_Init(flags: IMG_InitFlags) int;
 
 // Loads dynamic libraries and prepares them for use. Flags should be one or
-// more flags from [[init_flags]] OR'd together.
-export fn init(flags: init_flags) (void | sdl2::error) = {
-	return sdl2::wrapvoid(_init(flags));
+// more flags from [[IMG_InitFlags]] OR'd together.
+export fn IMG_Init(flags: IMG_InitFlags) (void | sdl2::error) = {
+	return sdl2::wrapvoid(_IMG_Init(flags));
 };
 
-// Unloads libraries loaded with [[init]]
-export @symbol("IMG_Quit") fn quit() void;
+// Unloads libraries loaded with [[IMG_Init]]
+export @symbol("IMG_Quit") fn IMG_Quit() void;
 
-@symbol("IMG_Load") fn _load(file: const *char) nullable *sdl2::surface;
+@symbol("IMG_Load") fn _IMG_Load(file: const *char) nullable *sdl2::SDL_Surface;
 
 // Load an image from a file path.
-export fn load(file: str) (*sdl2::surface | sdl2::error) = {
+export fn IMG_Load(file: str) (*sdl2::SDL_Surface | sdl2::error) = {
 	const file = strings::to_c(file);
 	defer free(file);
-	return sdl2::wrapptr(_load(file))?: *sdl2::surface;
+	return sdl2::wrapptr(_IMG_Load(file))?: *sdl2::SDL_Surface;
 };
 
-@symbol("IMG_LoadTexture") fn _load_texture(renderer: *sdl2::renderer,
-	file: const *char) nullable *sdl2::texture;
+@symbol("IMG_LoadTexture") fn _IMG_LoadTexture(SDL_Renderer: *sdl2::SDL_Renderer,
+	file: const *char) nullable *sdl2::SDL_Texture;
 
 // Load an image directly into a render texture.
-export fn load_texture(
-	renderer: *sdl2::renderer,
+export fn IMG_LoadTexture(
+	SDL_Renderer: *sdl2::SDL_Renderer,
 	file: str,
-) (*sdl2::texture | sdl2::error) = {
+) (*sdl2::SDL_Texture | sdl2::error) = {
 	const file = strings::to_c(file);
 	defer free(file);
-	return sdl2::wrapptr(_load_texture(renderer, file))?: *sdl2::texture;
+	return sdl2::wrapptr(_IMG_LoadTexture(SDL_Renderer, file))?: *sdl2::SDL_Texture;
 };

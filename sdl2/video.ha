@@ -2,10 +2,10 @@
 use strings;
 
 // The type used to identify a window. (Opaque)
-export type window = void;
+export type SDL_Window = void;
 
 // The flags on a window
-export type window_flags = enum u32 {
+export type SDL_WindowFlags = enum u32 {
 	NONE = 0,
 	FULLSCREEN = 0x00000001,
 	OPENGL = 0x00000002,
@@ -27,22 +27,22 @@ export type window_flags = enum u32 {
 	UTILITY = 0x00020000,
 	TOOLTIP = 0x00040000,
 	POPUP_MENU = 0x00080000,
-	VULKAN = 0x10000000 
+	VULKAN = 0x10000000
 };
 
-export def WINDOWPOS_UNDEFINED: int = 0x1FFF0000;
-export def WINDOWPOS_CENTERED: int = 0x2FFF0000;
+export def SDL_WINDOWPOS_UNDEFINED: int = 0x1FFF0000;
+export def SDL_WINDOWPOS_CENTERED: int = 0x2FFF0000;
 
-@symbol("SDL_CreateWindow") fn _create_window(title: const *char,
-	x: int, y: int, w: int, h: int, flags: window_flags) nullable *window;
+@symbol("SDL_CreateWindow") fn _SDL_CreateWindow(title: const *char,
+	x: int, y: int, w: int, h: int, flags: SDL_WindowFlags) nullable *SDL_Window;
 
 // Create a window with the specified position, dimensions, and flags.
 //
 // 'title' is the title of the window, in UTF-8 encoding. See [[strings::to_c]]
 // to prepare a suitable string.
 //
-// 'x' and 'y' set the position of the window, or use [[WINDOWPOS_CENTERED]] or
-// [[WINDOWPOS_UNDEFINED]].
+// 'x' and 'y' set the position of the window, or use [[SDL_WINDOWPOS_CENTERED]] or
+// [[SDL_WINDOWPOS_UNDEFINED]].
 //
 // 'w' and 'h' set the width and height of the window, in screen coordinates.
 //
@@ -69,22 +69,22 @@ export def WINDOWPOS_CENTERED: int = 0x2FFF0000;
 // Vulkan loader or link to a dynamic library version. This limitation may be
 // removed in a future version of SDL.
 //
-// See also: [[destroy_window]] [[gl_loadlibrary]], [[vulkan_loadlibrary]].
-export fn create_window(
+// See also: [[SDL_DestroyWindow]] [[gl_loadlibrary]], [[vulkan_loadlibrary]].
+export fn SDL_CreateWindow(
 	title: str,
 	x: int,
 	y: int,
 	w: int,
 	h: int,
-	flags: window_flags,
-) (*window | error) = {
+	flags: SDL_WindowFlags,
+) (*SDL_Window | error) = {
 	let title = strings::to_c(title);
 	defer free(title);
-	return wrapptr(_create_window(title, x, y, w, h, flags))?: *window;
+	return wrapptr(_SDL_CreateWindow(title, x, y, w, h, flags))?: *SDL_Window;
 };
 
 // Destroy a window.
-export @symbol("SDL_DestroyWindow") fn destroy_window(window: *window) void;
+export @symbol("SDL_DestroyWindow") fn SDL_DestroyWindow(window: *SDL_Window) void;
 
 // Get the size of a window's client area.
 //
@@ -96,5 +96,5 @@ export @symbol("SDL_DestroyWindow") fn destroy_window(window: *window) void;
 // support (e.g. iOS or macOS). Use [[gl_getdrawablesize]],
 // [[vulkan_getdrawablesize]], or [[getrendereroutputsize]] to get the real
 // client area size in pixels.
-export @symbol("SDL_GetWindowSize") fn get_window_size(window: *window,
+export @symbol("SDL_GetWindowSize") fn SDL_GetWindowSize(window: *SDL_Window,
 	w: nullable *int, h: nullable *int) void;

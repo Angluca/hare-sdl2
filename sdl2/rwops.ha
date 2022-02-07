@@ -12,12 +12,12 @@ export type rwops_type = enum u32 {
 };
 
 // The read/write operation structure -- very basic.
-export type rwops = struct {
-	sz: *fn(ctx: *rwops) i64,
-	seek: *fn(ctx: *rwops, offs: i64, whence: int) i64,
-	read: *fn(ctx: *rwops, ptr: *void, sz: size, maxnum: size) size,
-	write: *fn(ctx: *rwops, ptr: *void, sz: size, num: size) size,
-	close: *fn(ctx: *rwops) void,
+export type SDL_RWops = struct {
+	sz: *fn(ctx: *SDL_RWops) i64,
+	seek: *fn(ctx: *SDL_RWops, offs: i64, whence: int) i64,
+	read: *fn(ctx: *SDL_RWops, ptr: *void, sz: size, maxnum: size) size,
+	write: *fn(ctx: *SDL_RWops, ptr: *void, sz: size, num: size) size,
+	close: *fn(ctx: *SDL_RWops) void,
 
 	type_: rwops_type,
 	// XXX: This union is platform-specific
@@ -41,25 +41,25 @@ export type rwops = struct {
 @symbol("SDL_RWFromFile") fn _rw_from_file(
 	file: const *char,
 	mode: const *char,
-) *rwops;
+) *SDL_RWops;
 
-// Returns the size of an [[rwops]], or 0 if unknown or error.
+// Returns the size of an [[SDL_RWops]], or 0 if unknown or error.
 //
 // See [[stream_from_rw]] for a more idiomatic Hare interface to SDL_RWops.
-export @symbol("SDL_RWsize") fn rwsize(ctx: *rwops) i64;
+export @symbol("SDL_RWsize") fn SDL_RWsize(ctx: *SDL_RWops) i64;
 
-// Closes an [[rwops]], returning 1 on success or 0 on error.
+// Closes an [[SDL_RWops]], returning 1 on success or 0 on error.
 //
 // See [[stream_from_rw]] for a more idiomatic Hare interface to SDL_RWops.
-export @symbol("SDL_RWclose") fn rwclose(ctx: *rwops) int;
+export @symbol("SDL_RWclose") fn SDL_RWclose(ctx: *SDL_RWops) int;
 
 // TODO: Other RWops wrappers
 
-// Creates an [[rwops]] from an [[io::handle]]. Closing the rwops does not close
+// Creates an [[SDL_RWops]] from an [[io::handle]]. Closing the rwops does not close
 // the underlying stream.
-export fn rw_from_handle(in: io::handle) *rwops = {
+export fn rw_from_handle(in: io::handle) *SDL_RWops = {
 	// TODO: Add stream_from_rw
-	let rw = alloc(rwops {
+	let rw = alloc(SDL_RWops {
 		sz = &stream_size,
 		seek = &stream_seek,
 		read = &stream_read,
@@ -75,7 +75,7 @@ export fn rw_from_handle(in: io::handle) *rwops = {
 	return rw;
 };
 
-fn stream_size(ctx: *rwops) i64 = {
+fn stream_size(ctx: *SDL_RWops) i64 = {
 	const handle = *(&ctx.hidden.unknown.data1: *io::handle);
 	const old = match (io::tell(handle)) {
 	case let o: io::off =>
@@ -89,7 +89,7 @@ fn stream_size(ctx: *rwops) i64 = {
 	return sz;
 };
 
-fn stream_seek(ctx: *rwops, offs: i64, whence: int) i64 = {
+fn stream_seek(ctx: *SDL_RWops, offs: i64, whence: int) i64 = {
 	const handle = *(&ctx.hidden.unknown.data1: *io::handle);
 	// Note: whence values in stdio.h match io::whence
 	match (io::seek(handle, offs: io::off, whence: io::whence)) {
@@ -100,7 +100,7 @@ fn stream_seek(ctx: *rwops, offs: i64, whence: int) i64 = {
 	};
 };
 
-fn stream_read(ctx: *rwops, ptr: *void, sz: size, maxnum: size) size = {
+fn stream_read(ctx: *SDL_RWops, ptr: *void, sz: size, maxnum: size) size = {
 	const handle = *(&ctx.hidden.unknown.data1: *io::handle);
 	let buf = ptr: *[*]u8;
 	match (io::readitems(handle, buf[..sz * maxnum], sz)) {
@@ -111,7 +111,7 @@ fn stream_read(ctx: *rwops, ptr: *void, sz: size, maxnum: size) size = {
 	};
 };
 
-fn stream_write(ctx: *rwops, ptr: *void, sz: size, num: size) size = {
+fn stream_write(ctx: *SDL_RWops, ptr: *void, sz: size, num: size) size = {
 	const handle = *(&ctx.hidden.unknown.data1: *io::handle);
 	let buf = ptr: *[*]u8;
 	match (io::writeitems(handle, buf[..sz * num], sz)) {
@@ -122,7 +122,7 @@ fn stream_write(ctx: *rwops, ptr: *void, sz: size, num: size) size = {
 	};
 };
 
-fn stream_close(ctx: *rwops) void = {
+fn stream_close(ctx: *SDL_RWops) void = {
 	const handle = *(&ctx.hidden.unknown.data1: *io::handle);
 	free(ctx);
 };

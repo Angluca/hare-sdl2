@@ -1,4 +1,4 @@
-export type event_type = enum u32 {
+export type SDL_EventType = enum u32 {
 	FIRSTEVENT = 0,
 
 	QUIT = 0x100,
@@ -70,14 +70,14 @@ export type event_type = enum u32 {
 };
 
 // Fields shared by every event
-export type common_event = struct {
-	event_type: event_type,
+export type SDL_CommonEvent = struct {
+	event_type: SDL_EventType,
 	timestamp: u32,
 };
 
 // Display state change event data (event.display.*)
-export type display_event = struct {
-	common_event,
+export type SDL_DisplayEvent = struct {
+	SDL_CommonEvent,
 	display: u32,
 	event: u8,
 	padding1: u8,
@@ -87,8 +87,8 @@ export type display_event = struct {
 };
 
 // Window state change event data (event.window.*)
-export type window_event = struct {
-	common_event,
+export type SDL_WindowEvent = struct {
+	SDL_CommonEvent,
 	window_id: u32,
 	event: u8,
 	padding1: u8,
@@ -99,41 +99,41 @@ export type window_event = struct {
 };
 
 // Keyboard button event structure (event.key.*)
-export type keyboard_event = struct {
-	common_event,
+export type SDL_KeyboardEvent = struct {
+	SDL_CommonEvent,
 	window_id: u32,
 	state: u8,
 	repeat: u8,
 	padding2: u8,
 	padding3: u8,
-	keysym: keysym,
+	keysym: SDL_Keysym,
 };
 
-// Size of the [[text_editing_event]] 'text' field.
+// Size of the [[SDL_TextEditingEvent]] 'text' field.
 export def TEXTEDITINGEVENT_TEXT_SIZE: size = 32;
 
 // Keyboard text editing event structure (event.edit.*)
-export type text_editing_event = struct {
-	common_event,
+export type SDL_TextEditingEvent = struct {
+	SDL_CommonEvent,
 	window_id: u32,
 	text: [TEXTEDITINGEVENT_TEXT_SIZE]char,
 	start: i32,
 	length: i32,
 };
 
-// Size of the [[text_input_event]] 'text' field.
+// Size of the [[SDL_TextInputEvent]] 'text' field.
 export def TEXTINPUTEVENT_TEXT_SIZE: size = 32;
 
 // Keyboard text input event structure (event.text.*)
-export type text_input_event = struct {
-	common_event,
+export type SDL_TextInputEvent = struct {
+	SDL_CommonEvent,
 	window_id: u32,
 	text: [TEXTINPUTEVENT_TEXT_SIZE]char,
 };
 
 // Mouse motion event structure (event.motion.*)
-export type mouse_motion_event = struct {
-	common_event,
+export type SDL_MouseMotionEvent = struct {
+	SDL_CommonEvent,
 	window_id: u32,
 	which: u32,
 	state: u32,
@@ -144,8 +144,8 @@ export type mouse_motion_event = struct {
 };
 
 // Mouse button event structure (event.button.*)
-export type mouse_button_event = struct {
-	common_event,
+export type SDL_MouseButtonEvent = struct {
+	SDL_CommonEvent,
 	window_id: u32,
 	which: u32,
 	button: u8,
@@ -157,8 +157,8 @@ export type mouse_button_event = struct {
 };
 
 // Mouse wheel event structure (event.wheel.*)
-export type mouse_wheel_event = struct {
-	common_event,
+export type SDL_MouseWheelEvent = struct {
+	SDL_CommonEvent,
 	window_id: u32,
 	which: u32,
 	x: i32,
@@ -167,8 +167,8 @@ export type mouse_wheel_event = struct {
 };
 
 // Joystick axis motion event structure (event.jaxis.*)
-export type joy_axis_event = struct {
-	common_event,
+export type SDL_JoyAxisEvent = struct {
+	SDL_CommonEvent,
 	which: i32, // TODO: Rig me up with the JoystickID type
 	axis: u8,
 	padding1: u8,
@@ -179,8 +179,8 @@ export type joy_axis_event = struct {
 };
 
 // Joystick trackball motion event structure (event.jball.*)
-export type joy_ball_event = struct {
-	common_event,
+export type SDL_JoyBallEvent = struct {
+	SDL_CommonEvent,
 	which: i32, // TODO: Rig me up with the JoystickID type
 	ball: u8,
 	padding1: u8,
@@ -191,8 +191,8 @@ export type joy_ball_event = struct {
 };
 
 // Joystick hat position change event structure (event.jhat.*)
-export type joy_hat_event = struct {
-	common_event,
+export type SDL_JoyHatEvent = struct {
+	SDL_CommonEvent,
 	which: i32, // TODO: Rig me up with the JoystickID type
 	hat: u8,
 	value: u8, // TODO: Rig me up with HAT_UP et al
@@ -201,8 +201,8 @@ export type joy_hat_event = struct {
 };
 
 // Joystick button event structure (event.jbutton.*)
-export type joy_button_event = struct {
-	common_event,
+export type SDL_JoyButtonEvent = struct {
+	SDL_CommonEvent,
 	which: i32, // TODO: Rig me up with the JoystickID type
 	button: u8,
 	state: u8,
@@ -211,16 +211,16 @@ export type joy_button_event = struct {
 };
 
 // Joystick device event structure (event.jdevice.*)
-export type joy_device_event = struct {
-	common_event,
+export type SDL_JoyDeviceEvent = struct {
+	SDL_CommonEvent,
 	which: i32,
 };
 
 // Game controller axis motion event structure (event.caxis.*)
-export type controller_axis_event = struct {
-	common_event,
+export type SDL_ControllerAxisEvent = struct {
+	SDL_CommonEvent,
 	which: i32, // TODO
-	axis: controller_axis,
+	axis: SDL_GameControllerAxis,
 	padding1: u8,
 	padding2: u8,
 	padding3: u8,
@@ -229,8 +229,8 @@ export type controller_axis_event = struct {
 };
 
 // Game controller button event structure (event.cbutton.*)
-export type controller_button_event = struct {
-	common_event,
+export type SDL_ControllerButtonEvent = struct {
+	SDL_CommonEvent,
 	which: i32,
 	button: u8,
 	state: u8,
@@ -239,14 +239,14 @@ export type controller_button_event = struct {
 };
 
 // Controller device event structure (event.cdevice.*)
-export type controller_device_event = struct {
-	common_event,
+export type SDL_ControllerDeviceEvent = struct {
+	SDL_CommonEvent,
 	which: i32,
 };
 
 // Audio device event structure (event.adevice.*)
-export type audio_device_event = struct {
-	common_event,
+export type SDL_AudioDeviceEvent = struct {
+	SDL_CommonEvent,
 	which: u32,
 	iscapture: u8,
 	padding1: u8,
@@ -255,8 +255,8 @@ export type audio_device_event = struct {
 };
 
 // Touch finger event structure (event.tfinger.*)
-export type touch_finger_event = struct {
-	common_event,
+export type SDL_TouchFingerEvent = struct {
+	SDL_CommonEvent,
 	touch_id: i64, // TODO
 	finger_id: i64, // TODO
 	x: f32,
@@ -267,8 +267,8 @@ export type touch_finger_event = struct {
 };
 
 // Multiple Finger Gesture Event (event.mgesture.*)
-export type multi_gesture_event = struct {
-	common_event,
+export type SDL_MultiGestureEvent = struct {
+	SDL_CommonEvent,
 	touch_id: i64, // TODO
 	dtheta: f32,
 	ddist: f32,
@@ -279,8 +279,8 @@ export type multi_gesture_event = struct {
 };
 
 // Dollar Gesture Event (event.dgesture.*)
-export type dollar_gesture_event = struct {
-	common_event,
+export type SDL_DollarGestureEvent = struct {
+	SDL_CommonEvent,
 	touch_id: i64, // TODO
 	gesture_id: i64, // TODO
 	num_fingers: u32,
@@ -292,32 +292,32 @@ export type dollar_gesture_event = struct {
 // An event used to request a file open by the system (event.drop.*)
 // This event is enabled by default, you can disable it with [[eventstate]].
 // If this event is enabled, you must free the filename in the event.
-export type drop_event = struct {
-	common_event,
+export type SDL_DropEvent = struct {
+	SDL_CommonEvent,
 	file: *char,
 	window_id: u32,
 };
 
 // Sensor event structure (event.sensor.*)
-export type sensor_event = struct {
-	common_event,
+export type SDL_SensorEvent = struct {
+	SDL_CommonEvent,
 	which: i32,
 	data: [6]f32,
 };
 
 // The "quit requested" event
-export type quit_event = struct {
-	common_event,
+export type SDL_QuitEvent = struct {
+	SDL_CommonEvent,
 };
 
 // OS Specific event
-export type os_event = struct {
-	common_event,
+export type SDL_OSEvent = struct {
+	SDL_CommonEvent,
 };
 
 // A user-defined event type (event.user.*)
-export type user_event = struct {
-	common_event,
+export type SDL_UserEvent = struct {
+	SDL_CommonEvent,
 	window_id: u32,
 	code: i32,
 	data1: *void,
@@ -326,40 +326,40 @@ export type user_event = struct {
 
 // A video driver dependent system event (event.syswm.*)
 // This event is disabled by default, you can enable it with [[eventstate]].
-export type syswm_event = struct {
-	common_event,
+export type SDL_SysWMEvent = struct {
+	SDL_CommonEvent,
 	msg: *void, // TODO
 };
 
 // General event structure
 export type event = union {
-	event_type: event_type,
-	common: common_event,
-	display: display_event,
-	window: window_event,
-	key: keyboard_event,
-	edit: text_editing_event,
-	text: text_input_event,
-	motion: mouse_motion_event,
-	button: mouse_button_event,
-	wheel: mouse_wheel_event,
-	jaxis: joy_axis_event,
-	jball: joy_ball_event,
-	jhat: joy_hat_event,
-	jbutton: joy_button_event,
-	jdevice: joy_device_event,
-	caxis: controller_axis_event,
-	cbutton: controller_button_event,
-	cdevice: controller_device_event,
-	adevice: audio_device_event,
-	sensor: sensor_event,
-	quit: quit_event,
-	user: user_event,
-	syswm: syswm_event,
-	tfinger: touch_finger_event,
-	mgesture: multi_gesture_event,
-	dgestures: dollar_gesture_event,
-	drop: drop_event,
+	event_type: SDL_EventType,
+	common: SDL_CommonEvent,
+	display: SDL_DisplayEvent,
+	window: SDL_WindowEvent,
+	key: SDL_KeyboardEvent,
+	edit: SDL_TextEditingEvent,
+	text: SDL_TextInputEvent,
+	motion: SDL_MouseMotionEvent,
+	button: SDL_MouseButtonEvent,
+	wheel: SDL_MouseWheelEvent,
+	jaxis: SDL_JoyAxisEvent,
+	jball: SDL_JoyBallEvent,
+	jhat: SDL_JoyHatEvent,
+	jbutton: SDL_JoyButtonEvent,
+	jdevice: SDL_JoyDeviceEvent,
+	caxis: SDL_ControllerAxisEvent,
+	cbutton: SDL_ControllerButtonEvent,
+	cdevice: SDL_ControllerDeviceEvent,
+	adevice: SDL_AudioDeviceEvent,
+	sensor: SDL_SensorEvent,
+	quit: SDL_QuitEvent,
+	user: SDL_UserEvent,
+	syswm: SDL_SysWMEvent,
+	tfinger: SDL_TouchFingerEvent,
+	mgesture: SDL_MultiGestureEvent,
+	dgestures: SDL_DollarGestureEvent,
+	drop: SDL_DropEvent,
 
 	padding: [56]u8,
 };
@@ -369,7 +369,7 @@ export type event = union {
 // This function updates the event queue and internal input device state.
 //
 // This should only be run in the thread that sets the video mode.
-export @symbol("SDL_PumpEvents") fn pump_events() void;
+export @symbol("SDL_PumpEvents") fn SDL_PumpEvents() void;
 
 export type eventaction = enum {
 	ADDEVENT,
@@ -378,7 +378,7 @@ export type eventaction = enum {
 };
 
 @symbol("SDL_PeepEvents") fn _peep_events(events: *event, numevents: int,
-	action: eventaction, mintype: event_type, maxtype: event_type) int;
+	action: eventaction, mintype: SDL_EventType, maxtype: SDL_EventType) int;
 
 // Checks the event queue for messages and optionally returns them.
 //
@@ -394,33 +394,33 @@ export type eventaction = enum {
 // will be removed from the queue.
 //
 // This function is thread-safe.
-export fn peep_events(
+export fn SDL_PeepEvents(
 	events: *event,
 	numevents: int,
 	action: eventaction,
-	mintype: event_type,
-	maxtype: event_type,
+	mintype: SDL_EventType,
+	maxtype: SDL_EventType,
 ) (int | error) = {
 	return wrapint(_peep_events(events, numevents, action, mintype, maxtype));
 };
 
 // Checks to see if certain event types are in the event queue.
-export @symbol("SDL_HasEvent") fn has_event(event_type: event_type) bool;
+export @symbol("SDL_HasEvent") fn SDL_HasEvent(SDL_EventType: SDL_EventType) bool;
 
 // Checks to see if certain event types are in the event queue.
-export @symbol("SDL_HasEvents") fn has_events(mintype: event_type, maxtype: event_type) bool;
+export @symbol("SDL_HasEvents") fn SDL_HasEvents(mintype: SDL_EventType, maxtype: SDL_EventType) bool;
 
 // This function clears events from the event queue
 // This function only affects currently queued events. If you want to make
 // sure that all pending OS events are flushed, you can call SDL_PumpEvents()
 // on the main thread immediately before the flush call.
-export @symbol("SDL_FlushEvent") fn flush_event(event_type: event_type) void;
+export @symbol("SDL_FlushEvent") fn flush_event(SDL_EventType: SDL_EventType) void;
 
 // This function clears events from the event queue
 // This function only affects currently queued events. If you want to make
 // sure that all pending OS events are flushed, you can call SDL_PumpEvents()
 // on the main thread immediately before the flush call.
-export @symbol("SDL_FlushEvents") fn flush_events(mintype: event_type, maxtype: event_type) void;
+export @symbol("SDL_FlushEvents") fn SDL_FlushEvents(mintype: SDL_EventType, maxtype: SDL_EventType) void;
 
 @symbol("SDL_PollEvent") fn _poll_event(event: nullable *event) int;
 
@@ -430,7 +430,7 @@ export @symbol("SDL_FlushEvents") fn flush_events(mintype: event_type, maxtype: 
 //
 // If 'event' is not null, the next event is removed from the queue and stored
 // in that area.
-export fn poll_event(event: nullable *event) (int | error) = {
+export fn SDL_PollEvent(event: nullable *event) (int | error) = {
 	return wrapint(_poll_event(event));
 };
 
@@ -440,7 +440,7 @@ export fn poll_event(event: nullable *event) (int | error) = {
 //
 // If 'event' is not null, the next event is removed from the queue and stored
 // in that area.
-export fn wait_event(event: nullable *event) (void | error) = {
+export fn SDL_WaitEvent(event: nullable *event) (void | error) = {
 	return wrapvoid(_wait_event(event));
 };
 
@@ -448,11 +448,11 @@ export fn wait_event(event: nullable *event) (void | error) = {
 	event: nullable *event, timeout: int) int;
 
 // Waits until the specified timeout (in milliseconds) for the next available event.
-// 
+//
 // If 'event' is not null, the next event is removed from the queue and stored
 // in that area. The 'timeout' is the time (in milliseconds) to wait for next
 // event.
-export fn wait_event_timeout(
+export fn SDL_WaitEventTimeout(
 	event: nullable *event,
 	timeout: int,
 ) (void | error) = {
@@ -462,7 +462,7 @@ export fn wait_event_timeout(
 @symbol("SDL_PushEvent") fn _push_event(event: *event) int;
 
 // Add an event to the event queue.
-export fn push_event(event: *event) (void | error) = {
+export fn SDL_PushEvent(event: *event) (void | error) = {
 	return wrapvoid(_push_event(event));
 };
 
