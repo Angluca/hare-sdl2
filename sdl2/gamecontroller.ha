@@ -13,13 +13,13 @@ export type gamecontroller = void;
 //
 // Trigger axis values range from 0 to [[JOYSTICK_AXIS_MAX]].
 export type controller_axis = enum u8 {
-    LEFTX,
-    LEFTY,
-    RIGHTX,
-    RIGHTY,
-    TRIGGERLEFT,
-    TRIGGERRIGHT,
-    INVALID = 255,
+	LEFTX,
+	LEFTY,
+	RIGHTX,
+	RIGHTY,
+	TRIGGERLEFT,
+	TRIGGERRIGHT,
+	INVALID = 255,
 };
 
 // The list of buttons available from a controller
