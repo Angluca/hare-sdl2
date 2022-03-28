@@ -23,7 +23,7 @@ export type SDL_GameControllerAxis = enum u8 {
 };
 
 // The list of buttons available from a controller
-export type SDL_GameControllerBUtton = enum u8 {
+export type SDL_GameControllerButton = enum u8 {
 	INVALID = 255,
 	A = 0,
 	B,
