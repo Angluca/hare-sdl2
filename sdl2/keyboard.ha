@@ -419,7 +419,7 @@ export type SDL_Keycode = enum uint {
 	y = 'y',
 	z = 'z',
 
-	CAPSLOCK = SDL_Scancode::CAPSLOCK | 1: SDL_Scancode << 30,
+	CAPSLOCK = SDL_Scancode::CAPSLOCK | 1: SDL_Scancode << 30: SDL_Scancode,
 
 	F1 = SDL_Scancode::F1 | 1: SDL_Scancode << 30,
 	F2 = SDL_Scancode::F2 | 1: SDL_Scancode << 30,

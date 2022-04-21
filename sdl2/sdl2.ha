@@ -1,22 +1,20 @@
-// These are the flags which may be passed to [[SDL_Init]]. You should specify the
-// subsystems which you will be using in your application.
-export type init_flags = enum uint {
-	TIMER = 0x00000001u,
-	AUDIO = 0x00000010u,
-	VIDEO = 0x00000020u,
-	JOYSTICK = 0x00000200u,
-	HAPTIC = 0x00001000u,
-	GAMECONTROLLER = 0x00002000u,
-	EVENTS = 0x00004000u,
-	SENSOR = 0x00008000u,
-	NOPARACHUTE = 0x00100000u,
-	EVERYTHING = TIMER | AUDIO | VIDEO | EVENTS | JOYSTICK | HAPTIC | GAMECONTROLLER | SENSOR,
-};
+export def SDL_INIT_TIMER: uint = 0x00000001u;
+export def SDL_INIT_AUDIO: uint = 0x00000010u;
+export def SDL_INIT_VIDEO: uint = 0x00000020u;
+export def SDL_INIT_JOYSTICK: uint = 0x00000200u;
+export def SDL_INIT_HAPTIC: uint = 0x00001000u;
+export def SDL_INIT_GAMECONTROLLER: uint = 0x00002000u;
+export def SDL_INIT_EVENTS: uint = 0x00004000u;
+export def SDL_INIT_SENSOR: uint = 0x00008000u;
+export def SDL_INIT_NOPARACHUTE: uint = 0x00100000u;
+export def SDL_INIT_EVERYTHING: uint = SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_VIDEO
+	| SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC
+	| SDL_INIT_GAMECONTROLLER | SDL_INIT_SENSOR;
 
-@symbol("SDL_Init") fn _SDL_Init(flags: init_flags) int;
+@symbol("SDL_Init") fn _SDL_Init(flags: uint) int;
 
 // This function initializes the subsystems specified by 'flags'.
-export fn SDL_Init(flags: init_flags) (void | error) = {
+export fn SDL_Init(flags: uint) (void | error) = {
 	return wrapvoid(_SDL_Init(flags));
 };
 

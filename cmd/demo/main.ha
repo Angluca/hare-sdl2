@@ -33,9 +33,9 @@ export fn main() void = {
 };
 
 fn run() (void | fs::error | sdl2::error) = {
-	sdl2::SDL_Init(sdl2::init_flags::VIDEO
-		| sdl2::init_flags::AUDIO
-		| sdl2::init_flags::GAMECONTROLLER)!;
+	sdl2::SDL_Init(sdl2::SDL_INIT_VIDEO
+		| sdl2::SDL_INIT_AUDIO
+		| sdl2::SDL_INIT_GAMECONTROLLER)!;
 	defer sdl2::SDL_Quit();
 	image::IMG_Init(image::IMG_InitFlags::PNG | image::IMG_InitFlags::JPG)!;
 	defer image::IMG_Quit();
