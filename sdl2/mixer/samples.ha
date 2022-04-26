@@ -23,7 +23,7 @@ export fn Mix_LoadWAV_RW(src: io::handle) (*Mix_Chunk | sdl2::error) = {
 // Loads a sample from a file path.
 export fn load_file(src: str) (*Mix_Chunk | fs::error | sdl2::error) = {
 	const file = os::open(src)?;
-	defer io::close(file);
+	defer io::close(file)!;
 	return Mix_LoadWAV_RW(file);
 };
 
