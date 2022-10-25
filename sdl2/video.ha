@@ -98,3 +98,11 @@ export @symbol("SDL_DestroyWindow") fn SDL_DestroyWindow(window: *SDL_Window) vo
 // client area size in pixels.
 export @symbol("SDL_GetWindowSize") fn SDL_GetWindowSize(window: *SDL_Window,
 	w: nullable *int, h: nullable *int) void;
+
+// Get the SDL surface associated with the window.
+@symbol("SDL_GetWindowSurface") fn _SDL_GetWindowSurface(window: *SDL_Window)
+	*SDL_Surface;
+
+export fn SDL_GetWindowSurface(window: *SDL_Window) (*SDL_Surface | error) = {
+	return wrapptr(_SDL_GetWindowSurface(window))?: *SDL_Surface;
+};
