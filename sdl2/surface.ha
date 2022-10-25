@@ -23,3 +23,15 @@ export type SDL_Surface = struct {
 };
 
 export type SDL_BlitMap = void;
+
+@symbol("SDL_CreateRGBSurface") fn _SDL_CreateRGBSurface(flags: u32,
+	width: int, height: int, depth: int, Rmask: u32, Gmask: u32, Bmask: u32,
+	Amask: u32) *SDL_Surface;
+
+// Allocate a new RGB surface.
+export fn SDL_CreateRGBSurface(flags: u32,
+	width: int, height: int, depth: int, Rmask: u32, Gmask: u32, Bmask: u32,
+	Amask: u32) (*SDL_Surface | error) = {
+	return wrapptr(_SDL_CreateRGBSurface(flags, width, height, depth, Rmask,
+	Gmask, Bmask, Amask))?: *SDL_Surface;
+};
