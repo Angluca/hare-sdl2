@@ -36,3 +36,5 @@ export type SDL_PixelFormat = struct {
 	refcount: int,
 	next: nullable *SDL_PixelFormat,
 };
+
+export def SDL_PIXELFORMAT_ARGB8888: u32 = 0x16362004;
