@@ -195,3 +195,29 @@ export fn SDL_RenderFillRect(
 ) (void | error) = {
 	return wrapvoid(_SDL_RenderFillRect(renderer, rect));
 };
+
+@symbol("SDL_CreateTexture") fn _SDL_CreateTexture(renderer: *SDL_Renderer,
+	format: u32, access: int, w: int, h: int) *SDL_Texture;
+
+// Create a texture for a rendering context.
+export fn SDL_CreateTexture(renderer: *SDL_Renderer,
+	format: u32, access: int, w: int, h: int) (*SDL_Texture | error) = {
+	return wrapptr(_SDL_CreateTexture(renderer, format, access, w, h))?: *SDL_Texture;
+};
+
+@symbol("SDL_UpdateTexture") fn _SDL_UpdateTexture(texture: *SDL_Texture,
+	rect: const nullable *SDL_Rect, pixels: const nullable *void, pitch: int) int;
+
+// Update the given texture rectangle with new pixel data.
+export fn SDL_UpdateTexture(texture: *SDL_Texture,
+	rect: const nullable *SDL_Rect, pixels: const nullable *void, pitch: int)
+	(int | error) = {
+	return wrapint(_SDL_UpdateTexture(texture, rect, pixels, pitch))?: int;
+};
+
+// An enumeration of texture access patterns.
+export type SDL_TextureAccess = enum int {
+	STATIC,
+	STREAMING,
+	TARGET
+};
