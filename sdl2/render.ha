@@ -215,6 +215,19 @@ export fn SDL_UpdateTexture(texture: *SDL_Texture,
 	return wrapint(_SDL_UpdateTexture(texture, rect, pixels, pitch))?: int;
 };
 
+@symbol("SDL_LockTexture") fn _SDL_LockTexture(texture: *SDL_Texture,
+	rect: const nullable *SDL_Rect, pixels: nullable * nullable *void, pitch: *int) int;
+
+// Lock a portion of the texture for write-only pixel access.
+export fn SDL_LockTexture(texture: *SDL_Texture,
+	rect: const nullable *SDL_Rect, pixels: nullable * nullable *void, pitch: *int)
+	(int | error) = {
+	return wrapint(_SDL_LockTexture(texture, rect, pixels, pitch))?: int;
+};
+
+// Unlock a texture, uploading the changes to video memory, if needed.
+export @symbol("SDL_UnlockTexture") fn SDL_UnlockTexture(texture: *SDL_Texture) void;
+
 // An enumeration of texture access patterns.
 export type SDL_TextureAccess = enum int {
 	STATIC,
