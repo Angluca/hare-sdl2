@@ -103,7 +103,7 @@ fn stream_seek(ctx: *SDL_RWops, offs: i64, whence: int) i64 = {
 fn stream_read(ctx: *SDL_RWops, ptr: *void, sz: size, maxnum: size) size = {
 	const handle = *(&ctx.hidden.unknown.data1: *io::handle);
 	let buf = ptr: *[*]u8;
-	match (io::readitems(handle, buf[..sz * maxnum], sz)) {
+	match (io::readall(handle, buf[..sz * maxnum])) {
 	case let n: size =>
 		return n;
 	case io::error =>
@@ -114,7 +114,7 @@ fn stream_read(ctx: *SDL_RWops, ptr: *void, sz: size, maxnum: size) size = {
 fn stream_write(ctx: *SDL_RWops, ptr: *void, sz: size, num: size) size = {
 	const handle = *(&ctx.hidden.unknown.data1: *io::handle);
 	let buf = ptr: *[*]u8;
-	match (io::writeitems(handle, buf[..sz * num], sz)) {
+	match (io::writeall(handle, buf[..sz * num])) {
 	case let n: size =>
 		return n;
 	case io::error =>
