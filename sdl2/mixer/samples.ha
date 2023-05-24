@@ -13,10 +13,9 @@ export type Mix_Chunk = struct {
 
 @symbol("Mix_LoadWAV_RW") fn _Mix_LoadWAV_RW(src: *sdl2::SDL_RWops, freesrc: int) nullable *Mix_Chunk;
 
-// Loads a sample from an [[io::handle]]. The stream will not be closed for you.
+// Loads a sample from an [[io::handle]].
 export fn Mix_LoadWAV_RW(src: io::handle) (*Mix_Chunk | sdl2::error) = {
 	const rw = sdl2::rw_from_handle(src);
-	defer sdl2::SDL_RWclose(rw);
 	return sdl2::wrapptr(_Mix_LoadWAV_RW(rw, 0))?: *Mix_Chunk;
 };
 

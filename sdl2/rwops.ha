@@ -16,8 +16,8 @@ export type SDL_RWops = struct {
 	sz: *fn(ctx: *SDL_RWops) i64,
 	seek: *fn(ctx: *SDL_RWops, offs: i64, whence: int) i64,
 	read: *fn(ctx: *SDL_RWops, ptr: *void, sz: size, maxnum: size) size,
-	write: *fn(ctx: *SDL_RWops, ptr: *void, sz: size, num: size) size,
-	close: *fn(ctx: *SDL_RWops) void,
+	write: *fn(ctx: *SDL_RWops, ptr: *const void, sz: size, num: size) size,
+	close: *fn(ctx: *SDL_RWops) int,
 
 	type_: rwops_type,
 	// XXX: This union is platform-specific
@@ -105,24 +105,30 @@ fn stream_read(ctx: *SDL_RWops, ptr: *void, sz: size, maxnum: size) size = {
 	let buf = ptr: *[*]u8;
 	match (io::readall(handle, buf[..sz * maxnum])) {
 	case let n: size =>
-		return n;
+		return n / sz;
+	case io::EOF =>
+		return 0;
 	case io::error =>
 		return 0;
 	};
 };
 
-fn stream_write(ctx: *SDL_RWops, ptr: *void, sz: size, num: size) size = {
+fn stream_write(ctx: *SDL_RWops, ptr: *const void, sz: size, num: size) size = {
 	const handle = *(&ctx.hidden.unknown.data1: *io::handle);
-	let buf = ptr: *[*]u8;
+	let buf = ptr: *[*]const u8;
 	match (io::writeall(handle, buf[..sz * num])) {
 	case let n: size =>
-		return n;
+		return n / sz;
 	case io::error =>
 		return 0;
 	};
 };
 
-fn stream_close(ctx: *SDL_RWops) void = {
+fn stream_close(ctx: *SDL_RWops) int = {
 	const handle = *(&ctx.hidden.unknown.data1: *io::handle);
 	free(ctx);
+	match (io::close(handle)) {
+	case void => return 0;
+	case io::error => return -1;
+	};
 };
