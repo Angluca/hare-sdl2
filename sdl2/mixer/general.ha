@@ -29,7 +29,9 @@ export def MIX_DEFAULT_FORMAT: sdl2::SDL_AudioFormat = sdl2::AUDIO_S16LSB;
 // Loads dynamic libraries and prepares them for use.  Flags should be
 // one or more flags from [[MIX_InitFlags]] OR'd together.
 export fn Mix_Init(flags: MIX_InitFlags) (void | sdl2::error) = {
-	return sdl2::wrapvoid(_Mix_Init(flags));
+	if (flags & _Mix_Init(flags) != flags) {
+		return "Mixer flags not initialized": sdl2::error;
+	};
 };
 
 // Unloads libraries loaded with [[Mix_Init]].
