@@ -25,9 +25,9 @@ type state = struct {
 export fn main() void = {
 	match (run()) {
 	case let err: sdl2::error =>
-		fmt::fatal("SDL2 error: {}", sdl2::strerror(err));
+		fmt::fatal("SDL2 error:", sdl2::strerror(err));
 	case let err: fs::error =>
-		fmt::fatal("Error: {}", fs::strerror(err));
+		fmt::fatal("Error:", fs::strerror(err));
 	case void => void;
 	};
 };
