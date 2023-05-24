@@ -1,3 +1,2 @@
-docs/
-demo
-!./cmd/demo/
+/docs/
+/demo
