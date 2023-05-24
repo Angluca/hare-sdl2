@@ -1,5 +1,5 @@
 use io;
-use strings;
+use types::c;
 
 // RWops types
 export type rwops_type = enum u32 {
@@ -39,8 +39,8 @@ export type SDL_RWops = struct {
 };
 
 @symbol("SDL_RWFromFile") fn _rw_from_file(
-	file: const *char,
-	mode: const *char,
+	file: const *c::char,
+	mode: const *c::char,
 ) *SDL_RWops;
 
 // Returns the size of an [[SDL_RWops]], or 0 if unknown or error.

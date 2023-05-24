@@ -1,4 +1,4 @@
-use strings;
+use types::c;
 
 export type SDL_Scancode = enum uint {
 	UNKNOWN = 0,
@@ -632,14 +632,14 @@ export type SDL_Keysym = struct {
 	unused: u32,
 };
 
-@symbol("SDL_GetKeyFromName") fn _SDL_GetKeyFromName(name: *const char) SDL_Keycode;
+@symbol("SDL_GetKeyFromName") fn _SDL_GetKeyFromName(name: *const c::char) SDL_Keycode;
 
 export fn SDL_GetKeyFromName(name: str) (SDL_Keycode | error) = {
-	const name = strings::to_c(name);
+	const name = c::fromstr(name);
 	defer free(name);
 	const sym = _SDL_GetKeyFromName(name);
 	if (sym == SDL_Keycode::UNKNOWN) {
-		return strings::fromc(SDL_GetError()): error;
+		return c::tostr(SDL_GetError()): error;
 	};
 	return sym;
 };

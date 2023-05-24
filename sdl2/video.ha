@@ -1,5 +1,5 @@
 // TODO: Flesh me out
-use strings;
+use types::c;
 
 // The type used to identify a window. (Opaque)
 export type SDL_Window = void;
@@ -33,12 +33,12 @@ export type SDL_WindowFlags = enum u32 {
 export def SDL_WINDOWPOS_UNDEFINED: int = 0x1FFF0000;
 export def SDL_WINDOWPOS_CENTERED: int = 0x2FFF0000;
 
-@symbol("SDL_CreateWindow") fn _SDL_CreateWindow(title: const *char,
+@symbol("SDL_CreateWindow") fn _SDL_CreateWindow(title: const *c::char,
 	x: int, y: int, w: int, h: int, flags: SDL_WindowFlags) nullable *SDL_Window;
 
 // Create a window with the specified position, dimensions, and flags.
 //
-// 'title' is the title of the window, in UTF-8 encoding. See [[strings::to_c]]
+// 'title' is the title of the window, in UTF-8 encoding. See [[types::c::fromstr]]
 // to prepare a suitable string.
 //
 // 'x' and 'y' set the position of the window, or use [[SDL_WINDOWPOS_CENTERED]] or
@@ -78,7 +78,7 @@ export fn SDL_CreateWindow(
 	h: int,
 	flags: SDL_WindowFlags,
 ) (*SDL_Window | error) = {
-	let title = strings::to_c(title);
+	let title = c::fromstr(title);
 	defer free(title);
 	return wrapptr(_SDL_CreateWindow(title, x, y, w, h, flags))?: *SDL_Window;
 };

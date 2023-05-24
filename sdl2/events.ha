@@ -1,3 +1,5 @@
+use types::c;
+
 export type SDL_EventType = enum u32 {
 	FIRSTEVENT = 0,
 
@@ -116,7 +118,7 @@ export def TEXTEDITINGEVENT_TEXT_SIZE: size = 32;
 export type SDL_TextEditingEvent = struct {
 	SDL_CommonEvent,
 	window_id: u32,
-	text: [TEXTEDITINGEVENT_TEXT_SIZE]char,
+	text: [TEXTEDITINGEVENT_TEXT_SIZE]c::char,
 	start: i32,
 	length: i32,
 };
@@ -128,7 +130,7 @@ export def TEXTINPUTEVENT_TEXT_SIZE: size = 32;
 export type SDL_TextInputEvent = struct {
 	SDL_CommonEvent,
 	window_id: u32,
-	text: [TEXTINPUTEVENT_TEXT_SIZE]char,
+	text: [TEXTINPUTEVENT_TEXT_SIZE]c::char,
 };
 
 // Mouse motion event structure (event.motion.*)
@@ -294,7 +296,7 @@ export type SDL_DollarGestureEvent = struct {
 // If this event is enabled, you must free the filename in the event.
 export type SDL_DropEvent = struct {
 	SDL_CommonEvent,
-	file: *char,
+	file: *c::char,
 	window_id: u32,
 };
 

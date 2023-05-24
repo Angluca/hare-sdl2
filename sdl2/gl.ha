@@ -1,3 +1,5 @@
+use types::c;
+
 export type SDL_GLContext = void;
 
 export type SDL_GLprofile = enum int {
@@ -39,7 +41,7 @@ export type SDL_GLattr = enum {
 export @symbol("SDL_GL_CreateContext") fn SDL_GL_CreateContext(
 	window: *SDL_Window) *SDL_GLContext;
 export @symbol("SDL_GL_GetProcAddress") fn SDL_GL_GetProcAddress(
-	proc: *const char) *void;
+	proc: *const c::char) *void;
 export @symbol("SDL_GL_SetAttribute") fn SDL_GL_SetAttribute(
 	attr: SDL_GLattr, value: int) *void;
 export @symbol("SDL_GL_SwapWindow") fn SDL_GL_SwapWindow(window: *SDL_Window) void;
