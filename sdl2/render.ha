@@ -315,6 +315,17 @@ export fn SDL_CreateTexture(
     )?: *SDL_Texture;
 };
 
+@symbol("SDL_CreateTextureFromSurface") fn _SDL_CreateTextureFromSurface(
+    renderer: *SDL_Renderer,
+    surface: *SDL_Surface) nullable *SDL_Texture;
+
+export fn SDL_CreateTextureFromSurface(
+    renderer: *SDL_Renderer,
+    surface: *SDL_Surface
+) (*SDL_Texture | error) = {
+    return wrapptr(_SDL_CreateTextureFromSurface(renderer, surface))?: *SDL_Texture;
+};
+
 @symbol("SDL_UpdateTexture") fn _SDL_UpdateTexture(texture: *SDL_Texture,
 	rect: const nullable *SDL_Rect, pixels: const nullable *void, pitch: int) int;
 
