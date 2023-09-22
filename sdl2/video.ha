@@ -2,7 +2,7 @@
 use types::c;
 
 // The type used to identify a window. (Opaque)
-export type SDL_Window = void;
+export type SDL_Window = opaque;
 
 // The flags on a window
 export type SDL_WindowFlags = enum u32 {

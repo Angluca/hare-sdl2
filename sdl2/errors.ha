@@ -21,9 +21,9 @@ export fn wrapint(ret: int) (int | error) = {
 	return ret;
 };
 
-export fn wrapptr(ret: nullable *void) (*void | error) = {
+export fn wrapptr(ret: nullable *opaque) (*opaque | error) = {
 	match (ret) {
-	case let v: *void =>
+	case let v: *opaque =>
 		return v;
 	case null =>
 		return c::tostr(SDL_GetError()): error;

@@ -322,15 +322,15 @@ export type SDL_UserEvent = struct {
 	SDL_CommonEvent,
 	window_id: u32,
 	code: i32,
-	data1: *void,
-	data2: *void,
+	data1: *opaque,
+	data2: *opaque,
 };
 
 // A video driver dependent system event (event.syswm.*)
 // This event is disabled by default, you can enable it with [[eventstate]].
 export type SDL_SysWMEvent = struct {
 	SDL_CommonEvent,
-	msg: *void, // TODO
+	msg: *opaque, // TODO
 };
 
 // General event structure

@@ -8,12 +8,12 @@ export type SDL_Surface = struct {
 	w: int,
 	h: int,
 	pitch: int,
-	pixels: nullable *void,
+	pixels: nullable *opaque,
 
-	userdata: *void,
+	userdata: *opaque,
 
 	locked: int,
-	lock_data: *void,
+	lock_data: *opaque,
 
 	clip_rect: SDL_Rect,
 
@@ -22,7 +22,7 @@ export type SDL_Surface = struct {
 	refcount: int,
 };
 
-export type SDL_BlitMap = void;
+export type SDL_BlitMap = opaque;
 
 @symbol("SDL_CreateRGBSurface") fn _SDL_CreateRGBSurface(flags: u32,
 	width: int, height: int, depth: int, Rmask: u32, Gmask: u32, Bmask: u32,

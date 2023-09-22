@@ -15,8 +15,8 @@ export type rwops_type = enum u32 {
 export type SDL_RWops = struct {
 	sz: *fn(ctx: *SDL_RWops) i64,
 	seek: *fn(ctx: *SDL_RWops, offs: i64, whence: int) i64,
-	read: *fn(ctx: *SDL_RWops, ptr: *void, sz: size, maxnum: size) size,
-	write: *fn(ctx: *SDL_RWops, ptr: *const void, sz: size, num: size) size,
+	read: *fn(ctx: *SDL_RWops, ptr: *opaque, sz: size, maxnum: size) size,
+	write: *fn(ctx: *SDL_RWops, ptr: *const opaque, sz: size, num: size) size,
 	close: *fn(ctx: *SDL_RWops) int,
 
 	type_: rwops_type,
@@ -24,7 +24,7 @@ export type SDL_RWops = struct {
 	hidden: union {
 		stdio: struct {
 			autoclose: bool,
-			fp: nullable *void, // FILE *
+			fp: nullable *opaque, // FILE *
 		},
 		mem: struct {
 			base: nullable *u8,
@@ -32,8 +32,8 @@ export type SDL_RWops = struct {
 			stop: nullable *u8,
 		},
 		unknown: struct {
-			data1: nullable *void,
-			data2: nullable *void,
+			data1: nullable *opaque,
+			data2: nullable *opaque,
 		},
 	},
 };
@@ -100,7 +100,7 @@ fn stream_seek(ctx: *SDL_RWops, offs: i64, whence: int) i64 = {
 	};
 };
 
-fn stream_read(ctx: *SDL_RWops, ptr: *void, sz: size, maxnum: size) size = {
+fn stream_read(ctx: *SDL_RWops, ptr: *opaque, sz: size, maxnum: size) size = {
 	const handle = *(&ctx.hidden.unknown.data1: *io::handle);
 	let buf = ptr: *[*]u8;
 	match (io::readall(handle, buf[..sz * maxnum])) {
@@ -113,7 +113,7 @@ fn stream_read(ctx: *SDL_RWops, ptr: *void, sz: size, maxnum: size) size = {
 	};
 };
 
-fn stream_write(ctx: *SDL_RWops, ptr: *const void, sz: size, num: size) size = {
+fn stream_write(ctx: *SDL_RWops, ptr: *const opaque, sz: size, num: size) size = {
 	const handle = *(&ctx.hidden.unknown.data1: *io::handle);
 	let buf = ptr: *[*]const u8;
 	match (io::writeall(handle, buf[..sz * num])) {

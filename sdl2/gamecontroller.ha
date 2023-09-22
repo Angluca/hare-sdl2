@@ -2,7 +2,7 @@
 
 // The SDL_GameController structure used to identify an SDL game controller.
 // (Opaque)
-export type SDL_GameController = void;
+export type SDL_GameController = opaque;
 
 // The list of axes available from a controller
 //

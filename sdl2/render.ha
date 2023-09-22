@@ -1,10 +1,10 @@
 // TODO: Flesh me out
 
 // A structure representing rendering state. (Opaque)
-export type SDL_Renderer = void;
+export type SDL_Renderer = opaque;
 
 // An efficient driver-specific representation of pixel data. (Opaque)
-export type SDL_Texture = void;
+export type SDL_Texture = opaque;
 
 export type SDLPixelFormatValues = enum u32 {
     SDL_PIXELFORMAT_UNKNOWN,
@@ -327,21 +327,21 @@ export fn SDL_CreateTextureFromSurface(
 };
 
 @symbol("SDL_UpdateTexture") fn _SDL_UpdateTexture(texture: *SDL_Texture,
-	rect: const nullable *SDL_Rect, pixels: const nullable *void, pitch: int) int;
+	rect: const nullable *SDL_Rect, pixels: const nullable *opaque, pitch: int) int;
 
 // Update the given texture rectangle with new pixel data.
 export fn SDL_UpdateTexture(texture: *SDL_Texture,
-	rect: const nullable *SDL_Rect, pixels: const nullable *void, pitch: int)
+	rect: const nullable *SDL_Rect, pixels: const nullable *opaque, pitch: int)
 	(int | error) = {
 	return wrapint(_SDL_UpdateTexture(texture, rect, pixels, pitch))?: int;
 };
 
 @symbol("SDL_LockTexture") fn _SDL_LockTexture(texture: *SDL_Texture,
-	rect: const nullable *SDL_Rect, pixels: nullable * nullable *void, pitch: *int) int;
+	rect: const nullable *SDL_Rect, pixels: nullable * nullable *opaque, pitch: *int) int;
 
 // Lock a portion of the texture for write-only pixel access.
 export fn SDL_LockTexture(texture: *SDL_Texture,
-	rect: const nullable *SDL_Rect, pixels: nullable * nullable *void, pitch: *int)
+	rect: const nullable *SDL_Rect, pixels: nullable * nullable *opaque, pitch: *int)
 	(int | error) = {
 	return wrapint(_SDL_LockTexture(texture, rect, pixels, pitch))?: int;
 };
