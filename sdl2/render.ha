@@ -104,6 +104,15 @@ export fn SDL_CreateRenderer(
 // See also: [[SDL_CreateRenderer]].
 export @symbol("SDL_DestroyRenderer") fn SDL_DestroyRenderer(renderer: *SDL_Renderer) void;
 
+@symbol("SDL_GetRendererOutputSize") fn _SDL_GetRendererOutputSize(renderer: *SDL_Renderer,
+	w: *int, h: *int) int;
+
+// Get the output size in pixels of a rendering context.
+export fn SDL_GetRendererOutputSize(
+	renderer: *SDL_Renderer,
+	w: *int, h: *int,
+) (void | error) = wrapvoid(_SDL_GetRendererOutputSize(renderer, w, h));
+
 // Opaque value for the alpha channel (255).
 export def ALPHA_OPAQUE: u8 = 255;
 
