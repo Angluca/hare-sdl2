@@ -1,0 +1,23 @@
+TODO
+
+- SDL_syswm.h
+- SDL_vulkan.h
+
+Presently, nearly all structs, enums and functions are ported from all include
+files in SDL, with the following omissions:
+
+- SDL_assert.h, SDL_atomic.h, SDL_bits.h, SDL_endian.h, SDL_log.h, SDL_main.h
+  SDL_system.h, are worth considering, but can likely be dropped.
+- SDL_config.h and SDL_config_*.h are not needed.
+- SDL_copying.h, SDL_name.h, SDL_revision.h, SDL_quit.h, SDL_types.h do not
+  export symbols.
+- SDL_egl.h, SDL_opengl.h, SDL_opengl_*.h expose symbols that should be
+  provided by another binding library.
+- SDL_test.h and SDL_test_*.h are not needed.
+- SDL_metal.h will not be included.
+- #define'd functions and inlined functions. These should be considered in the
+  next pass over the source, although they are not as trivial to add.
+- Some functions/structs that are system-dependent (syswm, bits, among others).
+- #define'd constants that I missed.
+
+

@@ -1,0 +1,26 @@
+TODO:
+
+- gamecontroller.ha
+- gesture.ha
+- haptic.ha
+- joystick.ha
+- keyboard.ha functions
+- messagebox.ha
+- mouse.ha
+- pixels.ha mostly
+- rect.ha functions and inline defines
+- rwops.ha <-> io::handle, and many uses throughout.
+- sensor.ha
+- touch.ha
+- Convert camelCase parameter names to snake_case. I forgot!
+- Indicate which types cannot be directly cast to their sdl/v2c equivalents.
+
+Dropped files:
+
+- filesystem.ha - Use dirs from Hare standard library.
+- guid.ha - Do you need this?
+- hidapi.ha - Do you need this?
+- loadso.ha - Do you need this?
+- locale.ha - Use Hare's date/time/chrono stuff.
+- platform.ha - Use os::sysname?
+- stdinc.ha - Use Hare's standard library.

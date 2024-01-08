@@ -1,22 +1,25 @@
 .POSIX:
 .SUFFIXES:
 
-LIBS=-lc -lSDL2_image -lSDL2_mixer -lSDL2
+LIBS=-lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf
 
-demo:
-	hare build $(LIBS) cmd/demo
+all: bins
 
-run:
-	hare run $(LIBS) cmd/demo
+bins:
+	hare build $(LIBS) -o bin/version examples/version.ha
+	hare build $(LIBS) -o bin/demo examples/demo.ha
+	hare build $(LIBS) -o bin/sdl2c examples/sdl2c.ha
+	hare build $(LIBS) -o bin/videoinfo examples/videoinfo.ha
+	hare build $(LIBS) -o bin/gen_ha cmd/gen_ha.ha
+
+info: bins
+	./bin/version
+	./bin/videoinfo
+
+demo: bins 
+	./bin/demo
 
 clean:
-	rm -rf docs demo
+	rm -f ./bin/*
 
-docs:
-	mkdir -p docs/sdl2/image
-	haredoc -Fhtml sdl2 > docs/sdl2/index.html
-	haredoc -Fhtml sdl2::image > docs/sdl2/image/index.html
-	mkdir -p docs/sdl2/mixer
-	haredoc -Fhtml sdl2::mixer > docs/sdl2/mixer/index.html
-
-.PHONY: clean demo docs run
+.PHONY: all bins info

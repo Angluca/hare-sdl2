@@ -1,0 +1,2 @@
+Idiomatic Hare bindings to the SDL_image library, which is a simple library to
+load images of various formats as SDL surfaces and textures.

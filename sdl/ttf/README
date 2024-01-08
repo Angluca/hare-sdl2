@@ -1,0 +1,12 @@
+Idiomatic Hare bindings for SDL_ttf, which is itself a wrapper around the
+excellent FreeType and HarfBuzz libraries.
+
+SDL_ttf provides render functions for Latin1, UTF-8, and UCS-2. As Hare strings
+are already UTF-8 encoded, the other render functions are not included here, and
+the function names are simplified: TTF_RenderUTF8_Solid() -> render_solid().
+
+SDL_ttf also provides a set of TTF_RenderGlyph_* and TTF_RenderGlyph32_*, the
+difference being that the former takes a 16-bit character code which only covers
+the Basic Multilingual Plane which the latter takes a 32-bit character. The docs
+state that there is no reason to use the former, so in these bindings I chose to
+drop them: TTF_RenderGlyph32_Solid() -> render_glyph_solid().
