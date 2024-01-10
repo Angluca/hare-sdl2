@@ -22,7 +22,7 @@ export type display_moved = display_event_common;
 
 // Display orientation has changed.
 export type display_orientation_changed = struct {
-	common: display_event_common, // XXX try to remove this common
+	display_event_common,
 	orientation: display_orientation, // The new orientation.
 };
 
@@ -43,14 +43,14 @@ export type window_exposed = window_event_common;
 
 // Window has been moved.
 export type window_moved = struct {
-	common: window_event_common, // XXX try to remove this common
+	window_event_common,
 	x: int, // New x.
 	y: int, // New y.
 };
 
 // Window has been resized.
 export type window_resized = struct {
-	common: window_event_common, // XXX try to remove this common
+	window_event_common,
 	w: int, // New w.
 	h: int, // New h.
 };
@@ -58,7 +58,7 @@ export type window_resized = struct {
 // The window size has changed, either as a result of an API call or through the
 // system or user changing the window size.
 export type window_size_changed = struct {
-	common: window_event_common, // XXX try to remove this common
+	window_event_common,
 	w: int, // New w.
 	h: int, // New h.
 };
@@ -283,7 +283,8 @@ fn disp_event(ev: *SDL_Event) event = {
 	switch (ev.display.event) {
 	case SDL_DisplayEventID::SDL_DISPLAYEVENT_ORIENTATION =>
 		return display_orientation_changed {
-			common = dc,
+			timestamp = dc.timestamp,
+			display = dc.display,
 			orientation = ev.display.data1: display_orientation,
 		};
 	case SDL_DisplayEventID::SDL_DISPLAYEVENT_CONNECTED =>
@@ -310,19 +311,22 @@ fn window_event(ev: *SDL_Event) event = {
 		return wc: window_exposed;
 	case SDL_WindowEventID::SDL_WINDOWEVENT_MOVED =>
 		return window_moved {
-			common = wc,
+			timestamp = wc.timestamp,
+			window_id = wc.window_id,
 			x = ev.window.data1,
 			y = ev.window.data2,
 		};
 	case SDL_WindowEventID::SDL_WINDOWEVENT_RESIZED =>
 		return window_resized {
-			common = wc,
+			timestamp = wc.timestamp,
+			window_id = wc.window_id,
 			w = ev.window.data1,
 			h = ev.window.data2,
 		};
 	case SDL_WindowEventID::SDL_WINDOWEVENT_SIZE_CHANGED =>
 		return window_size_changed {
-			common = wc,
+			timestamp = wc.timestamp,
+			window_id = wc.window_id,
 			w = ev.window.data1,
 			h = ev.window.data2,
 		};
