@@ -1,4 +1,6 @@
+use types::c;
 use sdl;
+use sdl::v2c::*;
 
 // Returned when an error occurs in an IMG function.
 export type error = !str;
@@ -8,8 +10,7 @@ export fn strerror(err: error) str = {
 	return err: str;
 };
 
-fn get_error() error = sdl::get_error(): error;
-
+fn get_error() error = c::tostr(SDL_GetError()): error;
 
 fn wrapvoid(ret: int) (void | error) = {
 	wrapint(ret)?;
