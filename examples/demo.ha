@@ -29,7 +29,7 @@ export fn main() void = {
 
 	// start the main loop
 	let vx = 200, vy = 333;
-	let last_tick = sdl::get_ticks(): int;
+	let last_tick = sdl::get_ticks64(): int;
 	for :loop (true) {
 		// handle events
 		for (true) match (sdl::poll_event()) {
@@ -41,7 +41,7 @@ export fn main() void = {
 		};
 
 		// move harriet
-		const tick = sdl::get_ticks(): int;
+		const tick = sdl::get_ticks64(): int;
 		harepos.x += vx * (tick - last_tick) / 1000;
 		harepos.y += vy * (tick - last_tick) / 1000;
 		last_tick = tick;

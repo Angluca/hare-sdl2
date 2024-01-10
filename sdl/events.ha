@@ -2,7 +2,7 @@ use sdl::v2c::*;
 
 // Fields shared by every event.
 export type event_common = struct {
-	timestamp: u32, // In milliseconds, populated using [[get_ticks]].
+	timestamp: u32, // Milliseconds since SDL was initialized.
 };
 
 // Fields common to all display events.
