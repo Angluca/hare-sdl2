@@ -15,9 +15,7 @@ export type version = struct {
 
 // Get the version of SDL that is linked against your program.
 //
-// This function may be called safely at any time, even before init().
-//
-// ver is the version structure that contains the version information.
+// This function may be called safely at any time, even before [[init]].
 export fn get_version(ver: *version) void = SDL_GetVersion(ver: *SDL_version);
 
 // Get the code revision of SDL that is linked against your program.
@@ -29,12 +27,6 @@ export fn get_version(ver: *version) void = SDL_GetVersion(ver: *SDL_version);
 // If SDL wasn't built from a git repository with the appropriate tools, this
 // will return an empty string.
 // 
-// Prior to SDL 2.0.16, before development moved to GitHub, this returned a hash
-// for a Mercurial repository.
-// 
 // You shouldn't use this function for anything but logging it for debugging
 // purposes. The string is not intended to be reliable in any way.
-// 
-// Returns an arbitrary string, uniquely identifying the exact revision of the
-// SDL library in use.
 export fn get_revision() str = c::tostr(SDL_GetRevision())!;

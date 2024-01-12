@@ -1,1 +1,4 @@
-Parent module for the SDL library.
+Parent module for the idiomatic Hare wrapper around the SDL library.
+
+This module contains symbols from SDL.h, SDL_error.h, and SDL_version.h. See its
+submodules for the rest of the library.

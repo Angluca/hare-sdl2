@@ -5,9 +5,7 @@ use sdl::v2c::*;
 export type error = !str;
 
 // Converts an SDL error into a human-friendly string.
-export fn strerror(err: error) str = {
-	return err: str;
-};
+export fn strerror(err: error) str = err: str;
 
 fn get_error() error = c::tostr(SDL_GetError()): error;
 

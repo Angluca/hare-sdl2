@@ -11,23 +11,21 @@ export type init_flags = enum u32 {
 	GAMECONTROLLER = 0x00002000, // gamecontroller subsystem, implies joystick
 	EVENTS         = 0x00004000, // events subsystem
 	SENSOR         = 0x00008000, // sensor subsystem
-	EVERYTHING     = TIMER | AUDIO | VIDEO | EVENTS | JOYSTICK | HAPTIC
+
+	EVERYTHING = TIMER | AUDIO | VIDEO | EVENTS | JOYSTICK | HAPTIC
 		| GAMECONTROLLER | SENSOR, // all of the above subsystems
 };
 
 // Initialize the SDL library.
 // 
 // The file I/O and threading subsystems are initialized by default. Message
-// boxes (show_simple_message_box) also attempt to work without initializing the
-// video subsystem, in hopes of being useful in showing an error dialog when
-// init fails. You must specifically initialize other subsystems if you use them
-// in your application.
+// boxes also attempt to work without initializing the video subsystem, in hopes
+// of being useful in showing an error dialog when init fails. You must
+// specifically initialize other subsystems if you use them in your application.
 export fn init(flags: init_flags) (void | error) = wrapvoid(SDL_Init(flags));
 
-// Get a mask of the specified subsystems which are currently initialized.
-// 
-// Returns a mask of all initialized subsystems if flags is 0, otherwise it
-// returns the initialization status of the specified subsystems.
+// Get a mask of the specified subsystems which are currently initialized, or
+// all initialized subsystems if flags is 0.
 export fn was_init(flags: init_flags) init_flags =
 	SDL_WasInit(flags): init_flags;
 
