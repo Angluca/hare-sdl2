@@ -1,3 +1,4 @@
+use sdl;
 use sdl::v2c::*;
 use types::c;
 
@@ -6,9 +7,6 @@ export type thread = opaque;
 
 // The SDL thread ID.
 export type thread_id = u32;
-
-// Thread local storage ID, 0 is the invalid ID.
-export type tlsid = u32;
 
 export type thread_function = *fn(data: *opaque) int;
 
@@ -33,7 +31,7 @@ export fn create_thread(
 	fn_: thread_function,
 	name: str,
 	data: nullable *opaque,
-) (*thread | error) = {
+) (*thread | sdl::error) = {
 	let n = c::fromstr(name);
 	defer free(n);
 	return wrapptr(SDL_CreateThread(fn_: SDL_ThreadFunction, n,
@@ -68,7 +66,7 @@ export fn create_thread_with_stack_size(
 	name: str,
 	stacksize: size,
 	data: nullable *opaque,
-) (*thread | error) = {
+) (*thread | sdl::error) = {
 	let n = c::fromstr(name);
 	defer free(n);
 	return wrapptr(SDL_CreateThreadWithStackSize(fn_: SDL_ThreadFunction,
@@ -104,7 +102,7 @@ export fn get_thread_id(thread: nullable *thread) thread_id =
 // Note that some platforms will not let you alter the priority (or at least,
 // promote the thread to a higher priority) at all, and some require you to be
 // an administrator account. Be prepared for this to fail.
-export fn set_thread_priority(priority: thread_priority) (void | error) =
+export fn set_thread_priority(priority: thread_priority) (void | sdl::error) =
 	wrapvoid(SDL_SetThreadPriority(priority: SDL_ThreadPriority));
 
 // Wait for a thread to finish.

@@ -1,3 +1,9 @@
+use sdl;
+use sdl = sdl::blendmode;
+use sdl = sdl::rect;
+use sdl = sdl::pixels;
+use sdl = sdl::surface;
+use sdl = sdl::video;
 use sdl::v2c::*;
 use types;
 use types::c;
@@ -49,9 +55,9 @@ export type renderer_flip = enum u32 {
 
 // Vertex structure.
 export type vertex = struct {
-	position: fpoint, // Vertex position in renderer coordinates.
-	color: color, // Vertex color.
-	tex_coord: fpoint, // Normalized texture coordinates, if needed.
+	position: sdl::fpoint, // Vertex position in renderer coordinates.
+	color: sdl::color, // Vertex color.
+	tex_coord: sdl::fpoint, // Normalized texture coordinates, if needed.
 };
 
 // A structure representing rendering state.
@@ -67,7 +73,7 @@ export type texture = opaque;
 // drivers may have several available with different capabilities.
 // 
 // There may be none if SDL was compiled without render support.
-export fn get_num_render_drivers() (int | error) =
+export fn get_num_render_drivers() (int | sdl::error) =
 	wrapint(SDL_GetNumRenderDrivers());
 
 fn sdl_ri_to_ri(ri: *SDL_RendererInfo) renderer_info = {
@@ -87,7 +93,7 @@ fn sdl_ri_to_ri(ri: *SDL_RendererInfo) renderer_info = {
 };
 
 // Get info about a specific 2D rendering driver for the current display.
-export fn get_render_driver_info(index: int) (renderer_info | error) = {
+export fn get_render_driver_info(index: int) (renderer_info | sdl::error) = {
 	const ri = SDL_RendererInfo { ... };
 	wrapint(SDL_GetRenderDriverInfo(index, &ri))?;
 	return sdl_ri_to_ri(&ri);
@@ -97,14 +103,14 @@ export fn get_render_driver_info(index: int) (renderer_info | error) = {
 export fn create_window_and_renderer(
 	width: int,
 	height: int,
-	flags: window_flags,
-) ((*window, *renderer) | error) = {
+	flags: sdl::window_flags,
+) ((*sdl::window, *renderer) | sdl::error) = {
 	let w: nullable *SDL_Window = null;
 	let r: nullable *SDL_Renderer = null;
 	wrapint(SDL_CreateWindowAndRenderer(width, height,
 		flags: SDL_WindowFlags, &w, &r))?;
 	// SDL claims that these should not be null at this point.
-	return (w: *window, r: *renderer);
+	return (w: *sdl::window, r: *renderer);
 };
 
 // Create a 2D rendering context for a window.
@@ -112,10 +118,10 @@ export fn create_window_and_renderer(
 // index is the index of the rendering driver, or -1 for the first one
 // supporting the requested flags.
 export fn create_renderer(
-	window: *window,
+	window: *sdl::window,
 	index: int,
 	flags: renderer_flags,
-) (*renderer | error) = wrapptr(SDL_CreateRenderer(
+) (*renderer | sdl::error) = wrapptr(SDL_CreateRenderer(
 	window: *SDL_Window, index, flags: SDL_RendererFlags))?: *renderer;
 
 // Create a 2D software rendering context for a surface.
@@ -124,19 +130,19 @@ export fn create_renderer(
 // and [[create_window_and_renderer]]. These can also create a software
 // renderer, but they are intended to be used with a [[window]] as the final
 // destination and not a [[surface]].
-export fn create_software_renderer(surface: *surface) (*renderer | error) =
+export fn create_software_renderer(surface: *sdl::surface) (*renderer | sdl::error) =
 	wrapptr(SDL_CreateSoftwareRenderer(surface: *SDL_Surface))?: *renderer;
 
 // Get the renderer associated with a window.
-export fn get_renderer(window: *window) (*renderer | error) =
+export fn get_renderer(window: *sdl::window) (*renderer | sdl::error) =
 	wrapptr(SDL_GetRenderer(window: *SDL_Window))?: *renderer;
 
 // Get the window associated with a renderer.
-export fn render_get_window(renderer: *renderer) (*window | error) =
-	wrapptr(SDL_RenderGetWindow(renderer: *SDL_Renderer))?: *window;
+export fn render_get_window(renderer: *renderer) (*sdl::window | sdl::error) =
+	wrapptr(SDL_RenderGetWindow(renderer: *SDL_Renderer))?: *sdl::window;
 
 // Get information about a rendering context.
-export fn get_renderer_info(renderer: *renderer) (renderer_info | error) = {
+export fn get_renderer_info(renderer: *renderer) (renderer_info | sdl::error) = {
 	const ri = SDL_RendererInfo { ... };
 	wrapint(SDL_GetRendererInfo(renderer: *SDL_Renderer, &ri))?;
 	return sdl_ri_to_ri(&ri);
@@ -151,7 +157,7 @@ export fn get_renderer_output_size(
 	renderer: *renderer,
 	w: nullable *int,
 	h: nullable *int,
-) (void | error) = {
+) (void | sdl::error) = {
 	wrapvoid(SDL_GetRendererOutputSize(renderer: *SDL_Renderer, w, h))?;
 };
 
@@ -159,7 +165,7 @@ export fn get_renderer_output_size(
 // 
 // This function clears the entire rendering target, ignoring the viewport and
 // the clip rectangle.
-export fn render_clear(renderer: *renderer) (void | error) =
+export fn render_clear(renderer: *renderer) (void | sdl::error) =
 	wrapvoid(SDL_RenderClear(renderer: *SDL_Renderer));
 
 // Update the screen with any rendering performed since the previous call.
@@ -188,14 +194,14 @@ export fn render_present(renderer: *renderer) void =
 // Create a texture for a rendering context.
 //
 // You can set the texture scaling method by setting
-// [[HINT_RENDER_SCALE_QUALITY]] before creating the texture.
+// [[hints::RENDER_SCALE_QUALITY]] before creating the texture.
 export fn create_texture(
 	renderer: *renderer,
 	format: u32, // TODO
 	access: int, // TODO
 	w: int,
 	h: int,
-) (*texture | error) = {
+) (*texture | sdl::error) = {
 	return wrapptr(SDL_CreateTexture(renderer: *SDL_Renderer, format,
 		access, w, h))?: *texture;
 };
@@ -209,8 +215,8 @@ export fn create_texture(
 // the texture.
 export fn create_texture_from_surface(
 	renderer: *renderer,
-	surface: *surface,
-) (*texture | error) = {
+	surface: *sdl::surface,
+) (*texture | sdl::error) = {
 	return wrapptr(SDL_CreateTextureFromSurface(renderer: *SDL_Renderer,
 		surface: *SDL_Surface))?: *texture;
 };
@@ -222,7 +228,7 @@ export fn query_texture(
 	access: nullable *int,
 	w: nullable *int,
 	h: nullable *int,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_QueryTexture(texture: *SDL_Texture, format, access,
 		w, h));
 };
@@ -242,7 +248,7 @@ export fn set_texture_color_mod(
 	r: u8,
 	g: u8,
 	b: u8,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_SetTextureColorMod(texture: *SDL_Texture, r, g, b));
 };
 
@@ -252,7 +258,7 @@ export fn get_texture_color_mod(
 	r: *u8,
 	g: *u8,
 	b: *u8,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_GetTextureColorMod(texture: *SDL_Texture, r, g, b));
 };
 
@@ -265,11 +271,11 @@ export fn get_texture_color_mod(
 //
 // Alpha modulation is not always supported by the renderer; it will return -1
 // if alpha modulation is not supported.
-export fn set_texture_alpha_mod(texture: *texture, alpha: u8) (void | error) =
+export fn set_texture_alpha_mod(texture: *texture, alpha: u8) (void | sdl::error) =
 	wrapvoid(SDL_SetTextureAlphaMod(texture: *SDL_Texture, alpha));
 
 // Get the additional alpha value multiplied into render copy operations.
-export fn get_texture_alpha_mod(texture: *texture, alpha: *u8) (void | error) =
+export fn get_texture_alpha_mod(texture: *texture, alpha: *u8) (void | sdl::error) =
 	wrapvoid(SDL_GetTextureAlphaMod(texture: *SDL_Texture, alpha));
 
 // Set the blend mode for a texture, used by [[render_copy]].
@@ -278,8 +284,8 @@ export fn get_texture_alpha_mod(texture: *texture, alpha: *u8) (void | error) =
 // and this function returns an error.
 export fn set_texture_blend_mode(
 	texture: *texture,
-	blendMode: blend_mode,
-) (void | error) = {
+	blendMode: sdl::blend_mode,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_SetTextureBlendMode(texture: *SDL_Texture,
 		blendMode: SDL_BlendMode));
 };
@@ -287,8 +293,8 @@ export fn set_texture_blend_mode(
 // Get the blend mode used for texture copy operations.
 export fn get_texture_blend_mode(
 	texture: *texture,
-	blendMode: *blend_mode,
-) (void | error) = {
+	blendMode: *sdl::blend_mode,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_GetTextureBlendMode(texture: *SDL_Texture,
 		blendMode: *SDL_BlendMode));
 };
@@ -299,13 +305,13 @@ export fn get_texture_blend_mode(
 export fn set_texture_scale_mode(
 	texture: *texture,
 	scaleMode: scale_mode,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_SetTextureScaleMode(texture: *SDL_Texture,
 		scaleMode: SDL_ScaleMode));
 };
 
 // Get the scale mode used for texture scale operations.
-export fn get_texture_scale_mode(texture: *texture) (scale_mode | error) = {
+export fn get_texture_scale_mode(texture: *texture) (scale_mode | sdl::error) = {
 	let sm = scale_mode::NEAREST;
 	wrapvoid(SDL_GetTextureScaleMode(texture: *SDL_Texture,
 		&sm: *SDL_ScaleMode))?;
@@ -317,13 +323,13 @@ export fn get_texture_scale_mode(texture: *texture) (scale_mode | error) = {
 export fn set_texture_user_data(
 	texture: *texture,
 	userdata: *opaque,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_SetTextureUserData(texture: *SDL_Texture,
 		userdata));
 };
 
 // Get the user-specified pointer associated with a texture
-export fn get_texture_user_data(texture: *texture) (*opaque | error) = {
+export fn get_texture_user_data(texture: *texture) (*opaque | sdl::error) = {
 	return wrapptr(SDL_GetTextureUserData(texture: *SDL_Texture))?;
 };
 
@@ -341,10 +347,10 @@ export fn get_texture_user_data(texture: *texture) (*opaque | error) = {
 // reasons you may not get the pixels back if you lock the texture afterward.
 export fn update_texture(
 	texture: *texture,
-	rect: nullable *rect,
+	rect: nullable *sdl::rect,
 	pixels: *opaque,
 	pitch: int,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_UpdateTexture(texture: *SDL_Texture,
 		rect: nullable *SDL_Rect, pixels, pitch));
 };
@@ -357,14 +363,14 @@ export fn update_texture(
 // available if your pixel data is not contiguous.
 export fn update_yuvtexture(
 	texture: *texture,
-	rect: nullable *rect,
+	rect: nullable *sdl::rect,
 	Yplane: *u8,
 	Ypitch: int,
 	Uplane: *u8,
 	Upitch: int,
 	Vplane: *u8,
 	Vpitch: int,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_UpdateYUVTexture(texture: *SDL_Texture,
 		rect: nullable *SDL_Rect, Yplane, Ypitch, Uplane, Upitch,
 		Vplane, Vpitch));
@@ -377,12 +383,12 @@ export fn update_yuvtexture(
 // if your pixel data is not contiguous.
 export fn update_nvtexture(
 	texture: *texture,
-	rect: nullable *rect,
+	rect: nullable *sdl::rect,
 	Yplane: *u8,
 	Ypitch: int,
 	UVplane: *u8,
 	UVpitch: int,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_UpdateNVTexture(texture: *SDL_Texture,
 		rect: nullable *SDL_Rect, Yplane, Ypitch, UVplane, UVpitch));
 };
@@ -404,10 +410,10 @@ export fn update_nvtexture(
 // length of one row in bytes
 export fn lock_texture(
 	texture: *texture,
-	rect: nullable *rect,
+	rect: nullable *sdl::rect,
 	pixels: **opaque,
 	pitch: *int,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_LockTexture(texture: *SDL_Texture,
 		rect: nullable *SDL_Rect, pixels, pitch));
 };
@@ -436,9 +442,9 @@ export fn lock_texture(
 // surface is filled in with an SDL surface representing the locked area.
 export fn lock_texture_to_surface(
 	texture: *texture,
-	rect: nullable *rect,
-	surface: **surface,
-) (void | error) = {
+	rect: nullable *sdl::rect,
+	surface: **sdl::surface,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_LockTextureToSurface(texture: *SDL_Texture,
 		rect: nullable *SDL_Rect, surface: **SDL_Surface));
 };
@@ -470,7 +476,7 @@ export fn render_target_supported(renderer: *renderer) bool =
 export fn set_render_target(
 	renderer: *renderer,
 	texture: nullable *texture,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_SetRenderTarget(renderer: *SDL_Renderer,
 		texture: nullable *SDL_Texture));
 };
@@ -504,7 +510,7 @@ export fn render_set_logical_size(
 	renderer: *renderer,
 	w: int,
 	h: int,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderSetLogicalSize(renderer: *SDL_Renderer,
 		w, h));
 };
@@ -529,7 +535,7 @@ export fn render_get_logical_size(renderer: *renderer, w: *int, h: *int) void =
 export fn render_set_integer_scale(
 	renderer: *renderer,
 	enable: bool,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderSetIntegerScale(renderer: *SDL_Renderer,
 		enable));
 };
@@ -545,29 +551,29 @@ export fn render_get_integer_scale(renderer: *renderer) bool =
 // window size. The rect can be null to set the viewport to the entire target.
 export fn render_set_viewport(
 	renderer: *renderer,
-	rect: nullable *rect,
-) (void | error) = {
+	rect: nullable *sdl::rect,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderSetViewport(renderer: *SDL_Renderer,
 		rect: nullable *SDL_Rect));
 };
 
 // Get the drawing area for the current target.
-export fn render_get_viewport(renderer: *renderer, rect: *rect) void =
+export fn render_get_viewport(renderer: *renderer, rect: *sdl::rect) void =
 	SDL_RenderGetViewport(renderer: *SDL_Renderer, rect: *SDL_Rect);
 
 // Set the clip rectangle for rendering on the specified target.
 // A null rect disables clipping.
 export fn render_set_clip_rect(
 	renderer: *renderer,
-	rect: nullable *rect,
-) (void | error) = {
+	rect: nullable *sdl::rect,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderSetClipRect(renderer: *SDL_Renderer,
 		rect: nullable *SDL_Rect));
 };
 
 // Get the clip rectangle for the current target. Rect will be empty if clipping
 // is disabled.
-export fn render_get_clip_rect(renderer: *renderer, rect: *rect) void =
+export fn render_get_clip_rect(renderer: *renderer, rect: *sdl::rect) void =
 	SDL_RenderGetClipRect(renderer: *SDL_Renderer, rect: *SDL_Rect);
 
 // Get whether clipping is enabled on the given renderer.
@@ -588,7 +594,7 @@ export fn render_set_scale(
 	renderer: *renderer,
 	scaleX: f32,
 	scaleY: f32,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderSetScale(renderer: *SDL_Renderer,
 		scaleX, scaleY));
 };
@@ -642,7 +648,7 @@ export fn set_render_draw_color(
 	g: u8,
 	b: u8,
 	a: u8,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_SetRenderDrawColor(renderer: *SDL_Renderer,
 		r, g, b, a));
 };
@@ -654,7 +660,7 @@ export fn get_render_draw_color(
 	g: *u8,
 	b: *u8,
 	a: *u8,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_GetRenderDrawColor(renderer: *SDL_Renderer,
 		r, g, b, a));
 };
@@ -664,8 +670,8 @@ export fn get_render_draw_color(
 // If the blend mode is not supported, the closest supported mode is chosen.
 export fn set_render_draw_blend_mode(
 	renderer: *renderer,
-	blendMode: blend_mode,
-) (void | error) = {
+	blendMode: sdl::blend_mode,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_SetRenderDrawBlendMode(renderer: *SDL_Renderer,
 		blendMode: SDL_BlendMode));
 };
@@ -673,8 +679,8 @@ export fn set_render_draw_blend_mode(
 // Get the blend mode used for drawing operations.
 export fn get_render_draw_blend_mode(
 	renderer: *renderer,
-	blendMode: *blend_mode,
-) (void | error) = {
+	blendMode: *sdl::blend_mode,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_GetRenderDrawBlendMode(renderer: *SDL_Renderer,
 		blendMode: *SDL_BlendMode));
 };
@@ -687,13 +693,13 @@ export fn render_draw_point(
 	renderer: *renderer,
 	x: int,
 	y: int,
-) (void | error) = wrapvoid(SDL_RenderDrawPoint(renderer: *SDL_Renderer, x, y));
+) (void | sdl::error) = wrapvoid(SDL_RenderDrawPoint(renderer: *SDL_Renderer, x, y));
 
 // Draw multiple points on the current rendering target.
 export fn render_draw_points(
 	renderer: *renderer,
-	points: []point,
-) (void | error) = {
+	points: []sdl::point,
+) (void | sdl::error) = {
 	let sl = &points: *types::slice;
 	return wrapvoid(SDL_RenderDrawPoints(renderer: *SDL_Renderer,
 		sl.data: *SDL_Point, sl.length: int));
@@ -709,7 +715,7 @@ export fn render_draw_line(
 	y1: int,
 	x2: int,
 	y2: int,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderDrawLine(renderer: *SDL_Renderer,
 		x1, y1, x2, y2));
 };
@@ -718,8 +724,8 @@ export fn render_draw_line(
 // len(points) - 1 lines.
 export fn render_draw_lines(
 	renderer: *renderer,
-	points: []point,
-) (void | error) = {
+	points: []sdl::point,
+) (void | sdl::error) = {
 	let sl = &points: *types::slice;
 	return wrapvoid(SDL_RenderDrawLines(renderer: *SDL_Renderer,
 		sl.data: *SDL_Point, sl.length: int));
@@ -729,8 +735,8 @@ export fn render_draw_lines(
 // rect may be null to outline the entire rendering target
 export fn render_draw_rect(
 	renderer: *renderer,
-	rect: nullable *rect,
-) (void | error) = {
+	rect: nullable *sdl::rect,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderDrawRect(renderer: *SDL_Renderer,
 		rect: nullable *SDL_Rect));
 };
@@ -738,8 +744,8 @@ export fn render_draw_rect(
 // Draw some number of rectangles on the current rendering target.
 export fn render_draw_rects(
 	renderer: *renderer,
-	rects: []rect,
-) (void | error) = {
+	rects: []sdl::rect,
+) (void | sdl::error) = {
 	let sl = &rects: *types::slice;
 	return wrapvoid(SDL_RenderDrawRects(renderer: *SDL_Renderer,
 		sl.data: *SDL_Rect, sl.length: int));
@@ -754,8 +760,8 @@ export fn render_draw_rects(
 // rect may be null for the entire rendering target
 export fn render_fill_rect(
 	renderer: *renderer,
-	rect: nullable *rect,
-) (void | error) = {
+	rect: nullable *sdl::rect,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderFillRect(renderer: *SDL_Renderer,
 		rect: nullable *SDL_Rect));
 };
@@ -764,8 +770,8 @@ export fn render_fill_rect(
 // drawing color.
 export fn render_fill_rects(
 	renderer: *renderer,
-	rects: []rect,
-) (void | error) = {
+	rects: []sdl::rect,
+) (void | sdl::error) = {
 	let sl = &rects: *types::slice;
 	return wrapvoid(SDL_RenderFillRects(renderer: *SDL_Renderer,
 		sl.data: *SDL_Rect, sl.length: int));
@@ -788,9 +794,9 @@ export fn render_fill_rects(
 export fn render_copy(
 	renderer: *renderer,
 	texture: *texture,
-	srcrect: nullable *rect,
-	dstrect: nullable *rect,
-) (void | error) = {
+	srcrect: nullable *sdl::rect,
+	dstrect: nullable *sdl::rect,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderCopy(renderer: *SDL_Renderer,
 		texture: *SDL_Texture, srcrect: nullable *SDL_Rect,
 		dstrect: nullable *SDL_Rect));
@@ -823,12 +829,12 @@ export fn render_copy(
 export fn render_copy_ex(
 	renderer: *renderer,
 	texture: *texture,
-	srcrect: nullable *rect,
-	dstrect: nullable *rect,
+	srcrect: nullable *sdl::rect,
+	dstrect: nullable *sdl::rect,
 	angle: f64,
-	center: nullable *point,
+	center: nullable *sdl::point,
 	flip: renderer_flip,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderCopyEx(renderer: *SDL_Renderer,
 		texture: *SDL_Texture, srcrect: nullable *SDL_Rect,
 		dstrect: nullable *SDL_Rect, angle, center: nullable *SDL_Point,
@@ -840,15 +846,15 @@ export fn render_draw_point_f(
 	renderer: *renderer,
 	x: f32,
 	y: f32,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderDrawPointF(renderer: *SDL_Renderer, x, y));
 };
 
 // Draw multiple points on the current rendering target at subpixel precision.
 export fn render_draw_points_f(
 	renderer: *renderer,
-	points: []fpoint,
-) (void | error) = {
+	points: []sdl::fpoint,
+) (void | sdl::error) = {
 	let sl = &points: *types::slice;
 	return wrapvoid(SDL_RenderDrawPointsF(renderer: *SDL_Renderer,
 		sl.data: *SDL_FPoint, sl.length: int));
@@ -861,7 +867,7 @@ export fn render_draw_line_f(
 	y1: f32,
 	x2: f32,
 	y2: f32,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderDrawLineF(renderer: *SDL_Renderer,
 		x1, y1, x2, y2));
 };
@@ -870,8 +876,8 @@ export fn render_draw_line_f(
 // subpixel precision. Draws len(points) - 1 lines.
 export fn render_draw_lines_f(
 	renderer: *renderer,
-	points: []fpoint,
-) (void | error) = {
+	points: []sdl::fpoint,
+) (void | sdl::error) = {
 	let sl = &points: *types::slice;
 	return wrapvoid(SDL_RenderDrawLinesF(renderer: *SDL_Renderer,
 		sl.data: *SDL_FPoint, sl.length: int));
@@ -881,8 +887,8 @@ export fn render_draw_lines_f(
 // rect may be null to outline the entire rendering target.
 export fn render_draw_rect_f(
 	renderer: *renderer,
-	rect: nullable *frect,
-) (void | error) = {
+	rect: nullable *sdl::frect,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderDrawRectF(renderer: *SDL_Renderer,
 		rect: nullable *SDL_FRect));
 };
@@ -891,8 +897,8 @@ export fn render_draw_rect_f(
 // precision.
 export fn render_draw_rects_f(
 	renderer: *renderer,
-	rects: []frect,
-) (void | error) = {
+	rects: []sdl::frect,
+) (void | sdl::error) = {
 	let sl = &rects: *types::slice;
 	return wrapvoid(SDL_RenderDrawRectsF(renderer: *SDL_Renderer,
 		sl.data: *SDL_FRect, sl.length: int));
@@ -903,8 +909,8 @@ export fn render_draw_rects_f(
 // rect may be null for the entire rendering target.
 export fn render_fill_rect_f(
 	renderer: *renderer,
-	rect: nullable *frect,
-) (void | error) = {
+	rect: nullable *sdl::frect,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderFillRectF(renderer: *SDL_Renderer,
 		rect: nullable *SDL_FRect));
 };
@@ -913,8 +919,8 @@ export fn render_fill_rect_f(
 // drawing color at subpixel precision.
 export fn render_fill_rects_f(
 	renderer: *renderer,
-	rects: []frect,
-) (void | error) = {
+	rects: []sdl::frect,
+) (void | sdl::error) = {
 	let sl = &rects: *types::slice;
 	return wrapvoid(SDL_RenderFillRectsF(renderer: *SDL_Renderer,
 		sl.data: *SDL_FRect, sl.length: int));
@@ -927,9 +933,9 @@ export fn render_fill_rects_f(
 export fn render_copy_f(
 	renderer: *renderer,
 	texture: *texture,
-	srcrect: nullable *rect,
-	dstrect: nullable *frect,
-) (void | error) = {
+	srcrect: nullable *sdl::rect,
+	dstrect: nullable *sdl::frect,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderCopyF(renderer: *SDL_Renderer,
 		texture: *SDL_Texture, srcrect: nullable *SDL_Rect,
 		dstrect: nullable *SDL_FRect));
@@ -946,12 +952,12 @@ export fn render_copy_f(
 export fn render_copy_ex_f(
 	renderer: *renderer,
 	texture: *texture,
-	srcrect: nullable *rect,
-	dstrect: nullable *frect,
+	srcrect: nullable *sdl::rect,
+	dstrect: nullable *sdl::frect,
 	angle: f64,
-	center: nullable *fpoint,
+	center: nullable *sdl::fpoint,
 	flip: renderer_flip,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderCopyExF(renderer: *SDL_Renderer,
 		texture: *SDL_Texture, srcrect: nullable *SDL_Rect,
 		dstrect: nullable *SDL_FRect, angle,
@@ -971,7 +977,7 @@ export fn render_geometry(
 	texture: nullable *texture,
 	vertices: []vertex,
 	indices: []int,
-) (void | error) = {
+) (void | sdl::error) = {
 	let slv = &vertices: *types::slice;
 	let sli = &indices: *types::slice;
 	return wrapvoid(SDL_RenderGeometry(renderer: *SDL_Renderer,
@@ -1002,7 +1008,7 @@ export fn render_geometry_raw(
 	texture: nullable *texture,
 	xy: *f32,
 	xy_stride: int,
-	color: *color,
+	color: *sdl::color,
 	color_stride: int,
 	uv: *f32,
 	uv_stride: int,
@@ -1010,7 +1016,7 @@ export fn render_geometry_raw(
 	indices: nullable *opaque,
 	num_indices: int,
 	size_indices: int,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderGeometryRaw(renderer: *SDL_Renderer,
 		texture: nullable *SDL_Texture, xy, xy_stride,
 		color: *SDL_Color, color_stride, uv, uv_stride,
@@ -1036,11 +1042,11 @@ export fn render_geometry_raw(
 // TODO makeover mage?
 export fn render_read_pixels(
 	renderer: *renderer,
-	rect: nullable *rect,
+	rect: nullable *sdl::rect,
 	format: u32,
 	pixels: *opaque,
 	pitch: int,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_RenderReadPixels(renderer: *SDL_Renderer,
 		rect: nullable *SDL_Rect, format, pixels, pitch));
 };
@@ -1070,7 +1076,7 @@ export fn destroy_renderer(renderer: *renderer) void =
 // In all other cases, you can ignore this function. This is only here to get
 // maximum performance out of a specific situation. In all other cases, SDL
 // will do the right thing, perhaps at a performance loss.
-export fn render_flush(renderer: *renderer) (void | error) =
+export fn render_flush(renderer: *renderer) (void | sdl::error) =
 	wrapvoid(SDL_RenderFlush(renderer: *SDL_Renderer));
 
 // Bind an OpenGL/ES/ES2 texture to the current context.
@@ -1097,18 +1103,18 @@ export fn gl_bind_texture(
 	texture: *texture,
 	texw: nullable *f32,
 	texh: nullable *f32,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_GL_BindTexture(texture: *SDL_Texture, texw, texh));
 };
 
 // Unbind an OpenGL/ES/ES2 texture from the current context.
 //
 // See [[gl_bind_texture]] for examples on how to use these functions
-export fn gl_unbind_texture(texture: *texture) (void | error) =
+export fn gl_unbind_texture(texture: *texture) (void | sdl::error) =
 	wrapvoid(SDL_GL_UnbindTexture(texture: *SDL_Texture));
 
 // Toggle VSync of the given renderer.
-export fn render_set_vsync(renderer: *renderer, vsync: bool) (void | error) = {
+export fn render_set_vsync(renderer: *renderer, vsync: bool) (void | sdl::error) = {
 	if (SDL_RenderSetVSync(renderer: *SDL_Renderer,
 			if (vsync) 1 else 0) != 0)
 		return get_error();

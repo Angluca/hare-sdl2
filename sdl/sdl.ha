@@ -17,11 +17,11 @@ export type init_flags = enum u32 {
 
 // Initialize the SDL library.
 // 
-// The file I/O and threading ([[create_thread]]) subsystems are initialized by
-// default. Message boxes (show_simple_message_box) also attempt to work
-// without initializing the video subsystem, in hopes of being useful in showing
-// an error dialog when init fails. You must specifically initialize other
-// subsystems if you use them in your application.
+// The file I/O and threading subsystems are initialized by default. Message
+// boxes (show_simple_message_box) also attempt to work without initializing the
+// video subsystem, in hopes of being useful in showing an error dialog when
+// init fails. You must specifically initialize other subsystems if you use them
+// in your application.
 export fn init(flags: init_flags) (void | error) = wrapvoid(SDL_Init(flags));
 
 // Get a mask of the specified subsystems which are currently initialized.

@@ -1,5 +1,8 @@
 use types;
 use types::c;
+use sdl;
+use sdl = sdl::rect;
+use sdl = sdl::surface;
 use sdl::v2c::*;
 
 export type display_orientation = enum i32 {
@@ -18,11 +21,11 @@ export type display_orientation = enum i32 {
 };
 
 // Get the number of video drivers compiled into SDL.
-export fn get_num_video_drivers() (int | error) =
+export fn get_num_video_drivers() (int | sdl::error) =
 	wrapint(SDL_GetNumVideoDrivers());
 
 // Get the name of the video driver  with the given index.
-export fn get_video_driver(index: int) (str | error) =
+export fn get_video_driver(index: int) (str | sdl::error) =
 	c::tostr(wrapptr(SDL_GetVideoDriver(index))?: *c::char)!;
 
 // Get the name of the currently initialized video driver, if there is one.
@@ -36,18 +39,18 @@ export fn get_current_video_driver() (str | void) = {
 };
 
 // Get the number of available video displays.
-export fn get_num_video_displays() (int | error) =
+export fn get_num_video_displays() (int | sdl::error) =
 	wrapint(SDL_GetNumVideoDisplays());
 
 // Get the name of a display.
-export fn get_display_name(index: int) (str | error) =
+export fn get_display_name(index: int) (str | sdl::error) =
 	c::tostr(wrapptr(SDL_GetDisplayName(index))?: *c::char)!;
 
 // Get the desktop area represented by a display.
 //
 // The primary display (index zero) is always located at 0, 0.
-export fn get_display_bounds(index: int) (rect | error) = {
-	let r = rect { ... };
+export fn get_display_bounds(index: int) (sdl::rect | sdl::error) = {
+	let r = sdl::rect { ... };
 	wrapint(SDL_GetDisplayBounds(index, &r: *SDL_Rect))?;
 	return r;
 };
@@ -62,8 +65,8 @@ export fn get_display_bounds(index: int) (rect | error) = {
 // Setting a window to be fullscreen generally bypasses these unusable areas, so
 // these are good guidelines for the maximum space available to a
 // non-fullscreen window.
-export fn get_display_usable_bounds(index: int) (rect | error) = {
-	let r = rect { ... };
+export fn get_display_usable_bounds(index: int) (sdl::rect | sdl::error) = {
+	let r = sdl::rect { ... };
 	wrapint(SDL_GetDisplayUsableBounds(index, &r: *SDL_Rect))?;
 	return r;
 };
@@ -88,7 +91,7 @@ export type dpi = struct {
 // scaling value between the two. We will be rethinking how high-dpi details
 // should be managed in SDL3 to make things more consistent, reliable, and
 // clear.
-export fn get_display_dpi(index: int) (dpi | error) = {
+export fn get_display_dpi(index: int) (dpi | sdl::error) = {
 	let d = dpi { ... };
 	wrapint(SDL_GetDisplayDPI(index, &d.ddpi, &d.hdpi, &d.vdpi))?;
 	return d;
@@ -99,7 +102,7 @@ export fn get_display_orientation(index: int) display_orientation =
 	SDL_GetDisplayOrientation(index): display_orientation;
 
 // Get the number of available display modes.
-export fn get_num_display_modes(display_index: int) (int | error) =
+export fn get_num_display_modes(display_index: int) (int | sdl::error) =
 	wrapint(SDL_GetNumDisplayModes(display_index));
 
 // The structure that defines a display mode.
@@ -123,7 +126,7 @@ export type display_mode = struct {
 export fn get_display_mode(
 	display_index: int,
 	mode_index: int,
-) (display_mode | error) = {
+) (display_mode | sdl::error) = {
 	let d = display_mode { ... };
 	wrapint(SDL_GetDisplayMode(display_index, mode_index, &d))?;
 	return d;
@@ -198,7 +201,7 @@ export fn create_window(
 	w: int,
 	h: int,
 	flags: window_flags,
-) (*window | error) = {
+) (*window | sdl::error) = {
 	let t = c::fromstr(title);
 	defer free(t);
 	return wrapptr(SDL_CreateWindow(t, x, y, w, h, flags))?: *window;
@@ -207,16 +210,16 @@ export fn create_window(
 // Create an SDL window from an existing native window.
 // 
 // In some cases (e.g. OpenGL) and on some platforms, the hint
-// `SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT` needs to be configured
-// before using [[create_window_from]]. TODO change hint name
-export fn create_window_from(data: *opaque) (*window | error) =
+// [[hints::VIDEO_WINDOW_SHARE_PIXEL_FORMAT]] needs to be configured
+// before using [[create_window_from]].
+export fn create_window_from(data: *opaque) (*window | sdl::error) =
 	wrapptr(SDL_CreateWindowFrom(data))?: *window;
 
 // Get the numeric ID of a window.
 // 
 // The numeric ID is what window events reference, and is necessary to map these
 // events to specific window objects.
-export fn get_window_id(window: *window) (window_id | error) = {
+export fn get_window_id(window: *window) (window_id | sdl::error) = {
 	let id = SDL_GetWindowID(window: *SDL_Window);
 	if (id == 0) return c::tostr(SDL_GetError())!;
 	return id;
@@ -226,7 +229,7 @@ export fn get_window_id(window: *window) (window_id | error) = {
 // 
 // The numeric ID is what window events reference, and is necessary to map these
 // events to specific window objects.
-export fn get_window_from_id(id: window_id) (*window | error) =
+export fn get_window_from_id(id: window_id) (*window | sdl::error) =
 	wrapptr(SDL_GetWindowFromID(id))?: *window;
 
 // Get the window flags.
@@ -264,8 +267,8 @@ export fn has_window_surface(window: *window) bool =
 // 
 // This function is affected by `SDL_HINT_FRAMEBUFFER_ACCELERATION`.
 // TODO hint name?
-export fn get_window_surface(window: *window) (*surface | error) =
-	wrapptr(SDL_GetWindowSurface(window: *SDL_Window))?: *surface;
+export fn get_window_surface(window: *window) (*sdl::surface | sdl::error) =
+	wrapptr(SDL_GetWindowSurface(window: *SDL_Window))?: *sdl::surface;
 
 // Copy the window surface to the screen.
 // 
@@ -273,7 +276,7 @@ export fn get_window_surface(window: *window) (*surface | error) =
 // screen.
 // 
 // This function is equivalent to the SDL 1.2 API SDL_Flip().
-export fn update_window_surface(window: *window) (void | error) =
+export fn update_window_surface(window: *window) (void | sdl::error) =
 	wrapvoid(SDL_UpdateWindowSurface(window: *SDL_Window))?;
 
 // Copy areas of the window surface to the screen.
@@ -284,15 +287,15 @@ export fn update_window_surface(window: *window) (void | error) =
 // This function is equivalent to the SDL 1.2 API SDL_UpdateRects().
 export fn update_window_surface_rects(
 	window: *window,
-	rects: []rect,
-) (void | error) = {
+	rects: []sdl::rect,
+) (void | sdl::error) = {
 	let rs = &rects: *types::slice;
 	return wrapvoid(SDL_UpdateWindowSurfaceRects(window: *SDL_Window,
 		rs.data: *SDL_Rect, rs.length: int));
 };
 
 // Destroy the surface associated with the window.
-export fn destroy_window_surface(window: *window) (void | error) =
+export fn destroy_window_surface(window: *window) (void | sdl::error) =
 	wrapvoid(SDL_DestroyWindowSurface(window: *SDL_Window));
 
 // Destroy a window.
@@ -311,7 +314,7 @@ export fn get_window_title(window: *window) str =
 	c::tostr(SDL_GetWindowTitle(window: *SDL_Window))!;
 
 // Set the icon for a window.
-export fn set_window_icon(window: *window, icon: *surface) void =
+export fn set_window_icon(window: *window, icon: *sdl::surface) void =
 	SDL_SetWindowIcon(window: *SDL_Window, icon: *SDL_Surface);
 
 // Associate an arbitrary named pointer with a window.
@@ -387,7 +390,7 @@ export fn get_window_borders_size(
 	left: nullable *int,
 	bottom: nullable *int,
 	right: nullable *int,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_GetWindowBordersSize(window: *SDL_Window,
 		top, left, bottom, right));
 };
@@ -397,7 +400,7 @@ export fn get_window_borders_size(
 // This may differ from [[get_window_size]] if we're rendering to a high-DPI
 // drawable, i.e. the window was created with ALLOW_HIGHDPI on a platform
 // with high-DPI support (Apple calls this "Retina"), and not disabled by the
-// `[[HINT_VIDEO_HIGHDPI_DISABLED]]` hint.
+// [[hints::VIDEO_HIGHDPI_DISABLED]] hint.
 // TODO hint names?
 export fn get_window_size_in_pixels(
 	window: *window,
@@ -492,7 +495,7 @@ export fn restore_window(window: *window) void =
 export fn set_window_fullscreen(
 	window: *window,
 	flags: window_flags,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_SetWindowFullscreen(window: *SDL_Window, flags));
 };
 
@@ -562,17 +565,17 @@ export fn get_grabbed_window() (*window | void) = {
 // barrier for the specified window will be destroyed.
 export fn set_window_mouse_rect(
 	window: *window,
-	rect: nullable *rect,
-) (void | error) = {
+	rect: nullable *sdl::rect,
+) (void | sdl::error) = {
 	return wrapvoid(SDL_SetWindowMouseRect(window: *SDL_Window,
 		rect: nullable *SDL_Rect));
 };
 
 // Get the mouse confinement rectangle of a window.
-export fn get_window_mouse_rect(window: *window) (*rect | void) = {
+export fn get_window_mouse_rect(window: *window) (*sdl::rect | void) = {
 	return match (SDL_GetWindowMouseRect(window: *SDL_Window)) {
 	case null => yield void;
-	case let r: *SDL_Rect => yield r: *rect;
+	case let r: *SDL_Rect => yield r: *sdl::rect;
 	};
 };
 
@@ -594,7 +597,7 @@ export fn get_window_mouse_rect(window: *window) (*rect | void) = {
 export fn set_window_brightness(
 	window: *window,
 	brightness: f32,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_SetWindowBrightness(window: *SDL_Window,
 		brightness));
 };
@@ -615,7 +618,7 @@ export fn get_window_brightness(window: *window) f32 =
 //
 // The parameter opacity will be clamped internally between 0.0f (transparent)
 // and 1.0f (opaque).
-export fn set_window_opacity(window: *window, opacity: f32) (void | error) = {
+export fn set_window_opacity(window: *window, opacity: f32) (void | sdl::error) = {
 	return wrapvoid(SDL_SetWindowOpacity(window: *SDL_Window, opacity));
 };
 
@@ -623,7 +626,7 @@ export fn set_window_opacity(window: *window, opacity: f32) (void | error) = {
 //
 // If transparency isn't supported on this platform, opacity will be reported
 // as 1.0f without error.
-export fn get_window_opacity(window: *window) (f32 | error) = {
+export fn get_window_opacity(window: *window) (f32 | sdl::error) = {
 	let o = 0.0f32;
 	wrapvoid(SDL_GetWindowOpacity(window: *SDL_Window, &o))?;
 	return o;
@@ -633,7 +636,7 @@ export fn get_window_opacity(window: *window) (f32 | error) = {
 export fn set_window_modal_for(
 	modal_window: *window,
 	parent_window: *window,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_SetWindowModalFor(modal_window: *SDL_Window,
 		parent_window: *SDL_Window));
 };
@@ -643,7 +646,7 @@ export fn set_window_modal_for(
 // You almost certainly want [[raise_window]] instead of this function. Use
 // this with caution, as you might give focus to a window that is completely
 // obscured by other windows.
-export fn set_window_input_focus(window: *window) (void | error) =
+export fn set_window_input_focus(window: *window) (void | sdl::error) =
 	wrapvoid(SDL_SetWindowInputFocus(window: *SDL_Window));
 
 // Set the gamma ramp for the display that owns a given window.
@@ -665,7 +668,7 @@ export fn set_window_gamma_ramp(
 	red: nullable *u16,
 	green: nullable *u16,
 	blue: nullable *u16,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_SetWindowGammaRamp(window: *SDL_Window,
 		red, green, blue));
 };
@@ -682,7 +685,7 @@ export fn get_window_gamma_ramp(
 	red: nullable *u16,
 	green: nullable *u16,
 	blue: nullable *u16,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_GetWindowGammaRamp(window: *SDL_Window,
 		red, green, blue));
 };
@@ -704,7 +707,7 @@ export type hit_test_result = enum {
 // Callback used for hit-testing.
 export type hit_test = nullable *fn(
 	win: *window,
-	area: *point,
+	area: *sdl::point,
 	data: *opaque,
 ) hit_test_result;
 
@@ -742,7 +745,7 @@ export fn set_window_hit_test(
 	window: *window,
 	callback: hit_test,
 	callback_data: nullable *opaque,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_SetWindowHitTest(window: *SDL_Window,
 		callback: SDL_HitTest, callback_data));
 };
@@ -758,7 +761,7 @@ export type flash_operation = enum {
 export fn flash_window(
 	window: *window,
 	operation: flash_operation,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_FlashWindow(window: *SDL_Window,
 		operation: SDL_FlashOperation));
 };
@@ -793,7 +796,7 @@ export fn disable_screen_saver() void = SDL_DisableScreenSaver();
 //
 // path is the platform dependent OpenGL library name, or null to open the
 // default OpenGL library
-export fn gl_load_library(path: nullable *c::char) (void | error) =
+export fn gl_load_library(path: nullable *c::char) (void | sdl::error) =
 	wrapvoid(SDL_GL_LoadLibrary(path));
 
 // Get an OpenGL function by name.
@@ -826,7 +829,7 @@ export fn gl_load_library(path: nullable *c::char) (void | error) =
 // - OpenGL function pointers must be declared APIENTRY as in the example code.
 //   This will ensure the proper calling convention is followed on platforms
 //   where this matters thereby avoiding stack corruption.
-export fn gl_get_proc_address(proc: *c::char) (*opaque | error) =
+export fn gl_get_proc_address(proc: *c::char) (*opaque | sdl::error) =
 	return wrapptr(SDL_GL_GetProcAddress(proc))?: *opaque;
 
 // Unload the OpenGL library previously loaded by [[gl_load_library]].
@@ -891,11 +894,11 @@ export type glattr = enum {
 // attributes should be set before creating an OpenGL window. You should use
 // [[gl_get_attribute]] to check the values after creating the OpenGL
 // context, since the values obtained can differ from the requested ones.
-export fn gl_set_attribute(attr: glattr, value: int) (void | error) =
+export fn gl_set_attribute(attr: glattr, value: int) (void | sdl::error) =
 	return wrapvoid(SDL_GL_SetAttribute(attr: SDL_GLattr, value));
 
 // Get the actual value for an attribute from the current context.
-export fn gl_get_attribute(attr: glattr) (int | error) = {
+export fn gl_get_attribute(attr: glattr) (int | sdl::error) = {
 	let v = 0;
 	wrapvoid(SDL_GL_GetAttribute(attr: SDL_GLattr, &v))?;
 	return v;
@@ -904,7 +907,7 @@ export fn gl_get_attribute(attr: glattr) (int | error) = {
 export type glcontext = opaque;
 
 // Create an OpenGL context for an OpenGL window, and make it current.
-export fn gl_create_context(window: *window) (*glcontext | error) =
+export fn gl_create_context(window: *window) (*glcontext | sdl::error) =
 	wrapptr(SDL_GL_CreateContext(window: *SDL_Window))?: *glcontext;
 
 // Set up an OpenGL context for rendering into an OpenGL window.
@@ -913,18 +916,18 @@ export fn gl_create_context(window: *window) (*glcontext | error) =
 export fn gl_make_current(
 	window: *window,
 	context: *glcontext,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_GL_MakeCurrent(window: *SDL_Window,
 		context: *SDL_GLContext));
 };
 
 // Get the currently active OpenGL window.
-export fn gl_get_current_window() (*window | error) = {
+export fn gl_get_current_window() (*window | sdl::error) = {
 	return wrapptr(SDL_GL_GetCurrentWindow())?: *window;
 };
 
 // Get the currently active OpenGL context.
-export fn gl_get_current_context() (*glcontext | error) =
+export fn gl_get_current_context() (*glcontext | sdl::error) =
 	wrapptr(SDL_GL_GetCurrentContext())?: *glcontext;
 
 // Get the size of a window's underlying drawable in pixels.
@@ -933,7 +936,8 @@ export fn gl_get_current_context() (*glcontext | error) =
 //
 // This may differ from [[get_window_size]] if we're rendering to a high-DPI
 // drawable, i.e. the window was created with ALLOW_HIGHDPI on a platform with
-// high-DPI support, and not disabled by the HINT_VIDEO_HIGHDPI_DISABLED hint.
+// high-DPI support, and not disabled by the [[hints::VIDEO_HIGHDPI_DISABLED]]
+// hint.
 export fn gl_get_drawable_size(
 	window: *window,
 	w: nullable *int,
@@ -958,7 +962,7 @@ export fn gl_get_drawable_size(
 //
 // interval should be 0 for immediate updates, 1 for updates synchronized with
 // the vertical retrace, -1 for adaptive vsync.
-export fn gl_set_swap_interval(interval: int) (void | error) =
+export fn gl_set_swap_interval(interval: int) (void | sdl::error) =
 	wrapvoid(SDL_GL_SetSwapInterval(interval));
 
 // Get the swap interval for the current OpenGL context.

@@ -1,8 +1,6 @@
 use sdl::v2c::*;
 
-// The blend mode used in [[render_copy]] and drawing operations.
-// Additional custom blend modes can be returned by
-// [[compose_custom_blend_mode]].
+// The blend mode used in copy and drawing operations.
 export type blend_mode = enum  {
 	// No blending.
 	// dstRGBA = srcRGBA
@@ -56,10 +54,6 @@ export type blend_factor = enum  {
 
 // Compose a custom blend mode for renderers.
 // 
-// The functions [[set_render_draw_blend_mode]] and [[set_texture_blend_mode]]
-// accept the [[blend_mode]] returned by this function if the renderer supports
-// it.
-// 
 // A blend mode controls how the pixels from a drawing operation (source) get
 // combined with the pixels from the render target (destination). First, the
 // components of the source and destination pixels get multiplied with their
@@ -81,31 +75,28 @@ export type blend_factor = enum  {
 // - max(src, dst)
 // 
 // The red, green, and blue components are always multiplied with the first,
-// second, and third components of the [[blend_factor]], respectively. The
-// fourth component is not used.
+// second, and third components of the blend_factor, respectively. The fourth
+// component is not used.
 // 
 // The alpha component is always multiplied with the fourth component of the
-// [[blend_factor]]. The other components are not used in the alpha calculation.
+// blend_factor. The other components are not used in the alpha calculation.
 // 
 // Support for these blend modes varies for each renderer. To check if a
-// specific [[blend_mode]] is supported, create a renderer and pass it to either
-// [[set_render_draw_blend_mode]] or [[set_texture_blend_mode]]. They will
-// return with an error if the blend mode is not supported.
+// specific blend_mode is supported, create a renderer and pass it to either
+// set_render_draw_blend_mode or set_texture_blend_mode. They will return with
+// an error if the blend mode is not supported. All renderers support the four
+// blend modes listed in the blend_mode enumeration.
 // 
-// This list describes the support of custom blend modes for each renderer in
-// SDL 2.0.6. All renderers support the four blend modes listed in the
-// [[blend_mode]] enumeration.
-// 
-// - **opengl**: Supports the ADD operation with all factors.
-// - **opengles**: Supports the ADD operation with all factors. Color and alpha
+// - opengl: Supports the ADD operation with all factors.
+// - opengles: Supports the ADD operation with all factors. Color and alpha
 //   factors need to be the same. OpenGL ES 1 implementation specific: May also
 //   support SUBTRACT and REV_SUBTRACT. May support color and alpha operations
 //   being different from each other. May support color and alpha factors being
 //   different from each other.
-// - **opengles2**: Supports the ADD, SUBTRACT, REV_SUBTRACT operations with all
+// - opengles2: Supports the ADD, SUBTRACT, REV_SUBTRACT operations with all
 //   factors.
-// - **psp**: No custom blend mode support.
-// - **software**: No custom blend mode support.
+// - psp: No custom blend mode support.
+// - software: No custom blend mode support.
 // 
 // Some renderers do not provide an alpha component for the default render
 // target. The DST_ALPHA and ONE_MINUS_DST_ALPHA factors do not have an effect

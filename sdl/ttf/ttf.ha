@@ -1,5 +1,7 @@
 use io;
 use sdl;
+use sdl = sdl::pixels;
+use sdl = sdl::surface;
 use sdl::v2c::*;
 use sdl::ttf::v2c::*;
 use types::c;

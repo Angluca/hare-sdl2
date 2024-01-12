@@ -1,5 +1,10 @@
 // let harriet bounce around
 use sdl;
+use sdl = sdl::events;
+use sdl = sdl::rect;
+use sdl = sdl::render;
+use sdl = sdl::timer;
+use sdl = sdl::video;
 use img = sdl::image;
 
 export fn main() void = {

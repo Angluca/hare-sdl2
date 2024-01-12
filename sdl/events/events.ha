@@ -1,3 +1,6 @@
+use sdl;
+use sdl = sdl::keyboard;
+use sdl = sdl::video;
 use sdl::v2c::*;
 
 // Fields shared by every event.
@@ -23,7 +26,7 @@ export type display_moved = display_event_common;
 // Display orientation has changed.
 export type display_orientation_changed = struct {
 	display_event_common,
-	orientation: display_orientation, // The new orientation.
+	orientation: sdl::display_orientation, // The new orientation.
 };
 
 // Fields common to all window events.
@@ -108,14 +111,14 @@ export type key_pressed = struct {
 	event_common,
 	window_id: u32, // The window with keyboard focus, if any.
 	repeat: bool, // Whether this is a key repeat or not.
-	keysym: keysym, // The key that was pressed.
+	keysym: sdl::keysym, // The key that was pressed.
 };
 
 // A keyboard key was released.
 export type key_released = struct {
 	event_common,
 	window_id: u32, // The window with keyboard focus, if any.
-	keysym: keysym, // The key that was pressed.
+	keysym: sdl::keysym, // The key that was pressed.
 };
 
 // The mouse moved.
@@ -245,13 +248,13 @@ fn _poll_event() (void | event_not_implemented | ...event) = {
 			timestamp = ev.common.timestamp,
 			window_id = ev.key.window_id,
 			repeat = ev.key.repeat != 0,
-			keysym = *(&ev.key.keysym: *keysym),
+			keysym = *(&ev.key.keysym: *sdl::keysym),
 		};
 	case SDL_EventType::SDL_KEYUP =>
 		return key_released {
 			timestamp = ev.common.timestamp,
 			window_id = ev.key.window_id,
-			keysym = *(&ev.key.keysym: *keysym),
+			keysym = *(&ev.key.keysym: *sdl::keysym),
 		};
 	case SDL_EventType::SDL_MOUSEMOTION =>
 		return mouse_moved {
@@ -285,7 +288,7 @@ fn disp_event(ev: *SDL_Event) event = {
 		return display_orientation_changed {
 			timestamp = dc.timestamp,
 			display = dc.display,
-			orientation = ev.display.data1: display_orientation,
+			orientation = ev.display.data1: sdl::display_orientation,
 		};
 	case SDL_DisplayEventID::SDL_DISPLAYEVENT_CONNECTED =>
 		return dc: display_connected;

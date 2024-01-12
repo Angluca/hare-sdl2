@@ -1,0 +1,2 @@
+SDL keyboard event handling, plus constants which identify keyboard keys and
+modifiers, plus keyboard scancodes.

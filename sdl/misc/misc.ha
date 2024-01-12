@@ -1,3 +1,4 @@
+use sdl;
 use sdl::v2c::*;
 use types::c;
 
@@ -24,7 +25,7 @@ use types::c;
 //
 // url should be a valid URL/URI to open. Use `file:///full/path/to/file` for
 // local files, if supported.
-export fn open_url(url: str) (void | error) = {
+export fn open_url(url: str) (void | sdl::error) = {
 	const url_c = c::fromstr(url);
 	defer free(url_c);
 	return wrapvoid(SDL_OpenURL(url_c));

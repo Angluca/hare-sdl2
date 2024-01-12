@@ -1,5 +1,7 @@
 use fmt;
 use sdl;
+use sdl = sdl::render;
+use sdl = sdl::video;
 
 export fn main() void = {
 	sdl::init(sdl::init_flags::VIDEO)!;

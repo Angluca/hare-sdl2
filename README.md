@@ -26,8 +26,6 @@ __Remember, plain SDL is almost never the right choice for making GUIs.__
 
 ## C bindings
 
-Recommended to import with `use sdl::v2c::*`, `use sdl::image::v2c::*`, etc.
-
 These are a nearly direct translation from C to Hare, with the following
 changes:
 
@@ -49,9 +47,7 @@ changes:
 
 ## Idiomatic bindings
 
-Recommended to import with `use sdl`, `use img = sdl::image`, etc.
-
-These are wrappers over `sdl::v2c`, with the following changes:
+These are wrappers over `sdl::v2c` (and satellites), with the following changes:
 
 - Function and type names are converted from `SDL_PascalCase` to `snake_case`.
 - enum values have their `SDL_ENUMNAME_` previx removed.
@@ -59,6 +55,11 @@ These are wrappers over `sdl::v2c`, with the following changes:
 - Length + pointer arrays are converted to Hare slices and vice versa.
 - Sentinel-value errors are converted into Hare tagged unions.
 - Documentation is brought over from SDL and adapted for Hare.
+- SDL include files each get their own module. Because all of their symbols are
+  unique, I recommend importing all into the `sdl` scope via `use sdl;`,
+  `use sdl = sdl::video;`, and so on. Then, `SDL_CreateWindow` becomes
+  `sdl::create_window` rather than `video::create_window`. Satellite libraries
+  should be imported with their prefix, `use img = sdl::image;`.
 - Deprecated and "don't use this" functions are omitted.
 - Functions with Hare standard library equivalents are omitted.
 - The `SDL_Event` tagged union is now a Hare tagged union.

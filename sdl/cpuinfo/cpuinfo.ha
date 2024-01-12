@@ -1,3 +1,4 @@
+use sdl;
 use sdl::v2c::*;
 
 // Get the number of logical CPU cores available.
@@ -133,15 +134,17 @@ export fn simd_get_alignment() size = SDL_SIMDGetAlignment();
 // alloc_simd(0) will return a non-null pointer, assuming the system isn't
 // out of memory, but you are not allowed to dereference it (because you only
 // own zero bytes of that buffer).
-export fn simd_alloc(len_: size) (*opaque | error) =
+export fn simd_alloc(len_: size) (*opaque | sdl::error) =
 	wrapptr(SDL_SIMDAlloc(len_));
 
 // Reallocate memory obtained from [[simd_alloc]].
 // 
 // It is not valid to use this function on a pointer from anything but
 // [[simd_alloc]]. It can't be used on pointers from malloc, realloc, etc.
-export fn simd_realloc(mem: nullable *opaque, len_: size) (*opaque | error) =
-	wrapptr(SDL_SIMDRealloc(mem, len_));
+export fn simd_realloc(
+	mem: nullable *opaque,
+	len_: size,
+) (*opaque | sdl::error) = wrapptr(SDL_SIMDRealloc(mem, len_));
 
 // Deallocate memory obtained from [[simd_alloc]].
 // 

@@ -1,3 +1,4 @@
+use sdl;
 use sdl::v2c::*;
 
 // The SDL mutex structure.
@@ -11,7 +12,8 @@ export type mutex = opaque;
 // another thread. See [[try_lock_mutex]] to attempt to lock without blocking.
 //
 // SDL mutexes are reentrant.
-export fn create_mutex() (*mutex | error) = wrapptr(SDL_CreateMutex())?: *mutex;
+export fn create_mutex() (*mutex | sdl::error) =
+	wrapptr(SDL_CreateMutex())?: *mutex;
 
 // Destroy a mutex created with [[create_mutex]].
 //
@@ -33,7 +35,7 @@ export fn destroy_mutex(mutex: *mutex) void = {
 // It is legal for the owning thread to lock an already-locked mutex. It must
 // unlock it the same number of times before it is actually made available for
 // other threads in the system (this is known as a "recursive mutex").
-export fn lock_mutex(mutex: *mutex) (void | error) = {
+export fn lock_mutex(mutex: *mutex) (void | sdl::error) = {
 	return wrapvoid(SDL_LockMutex(mutex: *SDL_mutex));
 };
 
@@ -47,7 +49,7 @@ export type mutex_timedout = void;
 //
 // This technique is useful if you need exclusive access to a resource but
 // don't want to wait for it, and will return to it to try again later.
-export fn try_lock_mutex(mutex: *mutex) (void | mutex_timedout | error) = {
+export fn try_lock_mutex(mutex: *mutex) (void | mutex_timedout | sdl::error) = {
 	if (wrapint(SDL_TryLockMutex(mutex: *SDL_mutex))? == SDL_MUTEX_TIMEOUT)
 		return mutex_timedout;
 };
@@ -62,7 +64,7 @@ export fn try_lock_mutex(mutex: *mutex) (void | mutex_timedout | error) = {
 // thread, and doing so results in undefined behavior.
 //
 // It is also an error to unlock a mutex that isn't locked at all.
-export fn unlock_mutex(mutex: *mutex) (void | error) = {
+export fn unlock_mutex(mutex: *mutex) (void | sdl::error) = {
 	return wrapvoid(SDL_UnlockMutex(mutex: *SDL_mutex));
 };
 
@@ -76,7 +78,7 @@ export type sem = opaque;
 // decrement the semaphore value and potentially block if the semaphore value
 // is 0. Each post operation will atomically increment the semaphore value and
 // wake waiting threads and allow them to retry the wait operation.
-export fn create_semaphore(initial_value: u32) (*sem | error) = {
+export fn create_semaphore(initial_value: u32) (*sem | sdl::error) = {
 	return wrapptr(SDL_CreateSemaphore(initial_value))?: *sem;
 };
 
@@ -100,7 +102,7 @@ export def MUTEX_MAXWAIT = SDL_MUTEX_MAXWAIT;
 //
 // This function is the equivalent of calling [[sem_wait_timeout]] with a time
 // length of [[MUTEX_MAXWAIT]].
-export fn sem_wait(sem: *sem) (void | error) = {
+export fn sem_wait(sem: *sem) (void | sdl::error) = {
 	return wrapvoid(SDL_SemWait(sem: *SDL_sem));
 };
 
@@ -110,7 +112,7 @@ export fn sem_wait(sem: *sem) (void | error) = {
 // positive value and atomically decrements the semaphore value if it does. If
 // the semaphore doesn't have a positive value, the function immediately
 // returns [[mutex_timedout]].
-export fn sem_try_wait(sem: *sem) (void | mutex_timedout | error) = {
+export fn sem_try_wait(sem: *sem) (void | mutex_timedout | sdl::error) = {
 	if (wrapint(SDL_SemTryWait(sem: *SDL_sem))? == SDL_MUTEX_TIMEOUT)
 		return mutex_timedout;
 };
@@ -124,14 +126,14 @@ export fn sem_try_wait(sem: *sem) (void | mutex_timedout | error) = {
 export fn sem_wait_timeout(
 	sem: *sem,
 	timeout: u32,
-) (void | mutex_timedout | error) = {
+) (void | mutex_timedout | sdl::error) = {
 	if (wrapint(SDL_SemWaitTimeout(sem: *SDL_sem, timeout))?
 			== SDL_MUTEX_TIMEOUT)
 		return mutex_timedout;
 };
 
 // Atomically increment a semaphore's value and wake waiting threads.
-export fn sem_post(sem: *sem) (void | error) = {
+export fn sem_post(sem: *sem) (void | sdl::error) = {
 	return wrapvoid(SDL_SemPost(sem: *SDL_sem));
 };
 
@@ -142,17 +144,18 @@ export fn sem_value(sem: *sem) u32 = SDL_SemValue(sem: *SDL_sem);
 export type cond = opaque;
 
 // Create a condition variable.
-export fn create_cond() (*cond | error) = wrapptr(SDL_CreateCond())?: *cond;
+export fn create_cond() (*cond | sdl::error) =
+	wrapptr(SDL_CreateCond())?: *cond;
 
 // Destroy a condition variable.
 export fn destroy_cond(cond: *cond) void = SDL_DestroyCond(cond: *SDL_cond);
 
 // Restart one of the threads that are waiting on the condition variable.
-export fn cond_signal(cond: *cond) (void | error) =
+export fn cond_signal(cond: *cond) (void | sdl::error) =
 	wrapvoid(SDL_CondSignal(cond: *SDL_cond));
 
 // Restart all threads that are waiting on the condition variable.
-export fn cond_broadcast(cond: *cond) (void | error) =
+export fn cond_broadcast(cond: *cond) (void | sdl::error) =
 	wrapvoid(SDL_CondBroadcast(cond: *SDL_cond));
 
 // Wait until a condition variable is signaled.
@@ -166,7 +169,7 @@ export fn cond_broadcast(cond: *cond) (void | error) =
 //
 // This function is the equivalent of calling [[cond_wait_timeout]] with a
 // time length of [[MUTEX_MAXWAIT]].
-export fn cond_wait(cond: *cond, mutex: *mutex) (void | error) = {
+export fn cond_wait(cond: *cond, mutex: *mutex) (void | sdl::error) = {
 	return wrapvoid(SDL_CondWait(cond: *SDL_cond, mutex: *SDL_mutex));
 };
 
@@ -183,7 +186,7 @@ export fn cond_wait_timeout(
 	cond: *cond,
 	mutex: *mutex,
 	ms: u32,
-) (void | mutex_timedout | error) = {
+) (void | mutex_timedout | sdl::error) = {
 	if (wrapint(SDL_CondWaitTimeout(cond: *SDL_cond, mutex: *SDL_mutex,
 			ms))? == SDL_MUTEX_TIMEOUT)
 		return mutex_timedout;

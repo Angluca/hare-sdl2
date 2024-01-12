@@ -1,6 +1,7 @@
 use fs;
 use io;
 use os;
+use sdl;
 use sdl::v2c::*;
 use strings;
 use types;
@@ -67,7 +68,7 @@ export fn get_num_audio_drivers() int = SDL_GetNumAudioDrivers();
 // The names of drivers are all simple, low-ASCII identifiers, like "alsa",
 // "coreaudio" or "xaudio2". These never have Unicode characters, and are not
 // meant to be proper names.
-export fn get_audio_driver(index: int) (str | error) =
+export fn get_audio_driver(index: int) (str | sdl::error) =
 	c::tostr(wrapptr(SDL_GetAudioDriver(index))?: *c::char)!;
 
 
@@ -78,7 +79,7 @@ export fn get_audio_driver(index: int) (str | error) =
 // (although such a case would return a different static string from another
 // call to this function, of course). As such, you should not modify or free
 // the returned string.
-export fn get_current_audio_driver() (str | error) =
+export fn get_current_audio_driver() (str | sdl::error) =
 	c::tostr(wrapptr(SDL_GetCurrentAudioDriver())?: *c::char)!;
 
 // Get the number of built-in audio devices.
@@ -123,7 +124,7 @@ export fn get_num_audio_devices(iscapture: int) (void | int) = {
 // You are not to free it. If you need to keep the string for any length of
 // time, you should make your own copy of it, as it will be invalid next time
 // any of several other SDL functions are called.
-export fn get_audio_device_name(index: int, iscapture: int) (str | error) =
+export fn get_audio_device_name(index: int, iscapture: int) (str | sdl::error) =
 	c::tostr(wrapptr(SDL_GetAudioDeviceName(index, iscapture))?: *c::char)!;
 
 //  This function is called when the audio device needs more data.
@@ -165,7 +166,7 @@ export type audio_spec = struct {
 export fn get_audio_device_spec(
 	index: int,
 	iscapture: int,
-) (audio_spec | error) = {
+) (audio_spec | sdl::error) = {
 	let spec = audio_spec { format = audio_format::U8, ... };
 	if (SDL_GetAudioDeviceSpec(index, iscapture, &spec: *SDL_AudioSpec) != 0)
 		return c::tostr(SDL_GetError())!;
@@ -184,7 +185,7 @@ export fn get_audio_device_spec(
 // should call this function sparingly!
 //
 // Returns a tuple of (name, spec). name must be freed by the caller.
-export fn get_default_audio_info(iscapture: int) ((str, audio_spec) | error) = {
+export fn get_default_audio_info(iscapture: int) ((str, audio_spec) | sdl::error) = {
 	let n = null: *c::char; // risky business, this
 	let s = audio_spec { format = audio_format::U8, ... };
 	if (SDL_GetDefaultAudioInfo(&n, &s: *SDL_AudioSpec, iscapture) != 0)
@@ -268,7 +269,7 @@ export fn open_audio_device(
 	desired: *audio_spec,
 	obtained: nullable *audio_spec,
 	allowed_changes: int,
-) (audio_device_id | error) = {
+) (audio_device_id | sdl::error) = {
 	let d = match (device) {
 	case void => yield null;
 	case let s: str => yield c::fromstr(s);
@@ -365,7 +366,7 @@ export fn load_wav_h(
 	src: io::handle,
 	audio_buf: **u8,
 	audio_len: *u32,
-) (audio_spec | error) = {
+) (audio_spec | sdl::error) = {
 	const rw = SDL_rw_from_handle(src);
 	let spec = audio_spec { format = 0, ... };
 	wrapptr(SDL_LoadWAV_RW(&rw, 0, &spec: *SDL_AudioSpec, audio_buf,
@@ -378,7 +379,7 @@ export fn load_wav(
 	path: str,
 	audio_buf: **u8,
 	audio_len: *u32,
-) (audio_spec | fs::error | error) = {
+) (audio_spec | fs::error | sdl::error) = {
 	const f = os::open(path)?;
 	defer io::close(f)!;
 	return load_wav_h(f, audio_buf, audio_len);
@@ -398,14 +399,14 @@ export fn new_audio_stream(
 	dst_format: audio_format,
 	dst_channels: u8,
 	dst_rate: int,
-) (*audio_stream | error) = {
+) (*audio_stream | sdl::error) = {
 	return wrapptr(SDL_NewAudioStream(src_format: SDL_AudioFormat,
 		src_channels, src_rate, dst_format: SDL_AudioFormat,
 		dst_channels, dst_rate))?: *audio_stream;
 };
 
 // Add data to be converted/resampled to the stream.
-export fn audio_stream_put(stream: *audio_stream, buf: []u8) (void | error) = {
+export fn audio_stream_put(stream: *audio_stream, buf: []u8) (void | sdl::error) = {
 	let s = &buf: *types::slice;
 	return wrapvoid(SDL_AudioStreamPut(stream: *SDL_AudioStream,
 		s.data: *opaque, s.length: int));
@@ -421,7 +422,7 @@ export fn audio_stream_get(
 	stream: *audio_stream,
 	buf: *opaque,
 	len_: int,
-) (int | error) = {
+) (int | sdl::error) = {
 	return wrapint(SDL_AudioStreamGet(stream: *SDL_AudioStream, buf, len_));
 };
 
@@ -517,7 +518,7 @@ export fn queue_audio(
 	dev: audio_device_id,
 	data: *opaque,
 	len_: u32,
-) (void | error) = {
+) (void | sdl::error) = {
 	return wrapvoid(SDL_QueueAudio(dev: SDL_AudioDeviceID, data, len_));
 };
 
@@ -554,7 +555,7 @@ export fn queue_audio(
 //
 // You should not call lock_audio on the device before dequeueing; SDL
 // handles locking internally for this function.
-// May return fewer bytes than requested. Call [[get_error]] if so.
+// May return fewer bytes than requested. Call get_error if so.
 // TODO reconsider interface
 export fn dequeue_audio(dev: audio_device_id, data: *opaque, len_: u32) u32 = {
 	return SDL_DequeueAudio(dev: SDL_AudioDeviceID, data, len_);
