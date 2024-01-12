@@ -19,10 +19,17 @@ export type renderer_flags = enum u32 {
 // Information on the capabilities of a render driver or context.
 export type renderer_info = struct {
 	name: str, // The name of the renderer.
-	flags: renderer_flags, // Supported renderer flags.
-	texture_formats: []u32, // The available texture formats.
+	flags: renderer_flags, // Supported [[renderer_flags]].
+	texture_formats: []u32, // The available texture formats. TODO
 	max_texture_width: int, // The maximum texture width.
 	max_texture_height: int, // The maximum texture height.
+};
+
+// Vertex structure.
+export type vertex = struct {
+	position: sdl::fpoint, // Vertex position in renderer coordinates.
+	color: sdl::color, // Vertex color.
+	tex_coord: sdl::fpoint, // Normalized texture coordinates, if needed.
 };
 
 // The scaling mode for a texture.
@@ -53,28 +60,11 @@ export type renderer_flip = enum u32 {
 	VERTICAL, // Flip vertically.
 };
 
-// Vertex structure.
-export type vertex = struct {
-	position: sdl::fpoint, // Vertex position in renderer coordinates.
-	color: sdl::color, // Vertex color.
-	tex_coord: sdl::fpoint, // Normalized texture coordinates, if needed.
-};
-
 // A structure representing rendering state.
 export type renderer = opaque;
 
 // An efficient driver-specific representation of pixel data.
 export type texture = opaque;
-
-// Get the number of 2D rendering drivers available for the current display.
-// 
-// A render driver is a set of code that handles rendering and texture
-// management on a particular display. Normally there is only one, but some
-// drivers may have several available with different capabilities.
-// 
-// There may be none if SDL was compiled without render support.
-export fn get_num_render_drivers() (int | sdl::error) =
-	wrapint(SDL_GetNumRenderDrivers());
 
 fn sdl_ri_to_ri(ri: *SDL_RendererInfo) renderer_info = {
 	// name and texture_formats are static, so okay to just copy refs.
@@ -91,6 +81,16 @@ fn sdl_ri_to_ri(ri: *SDL_RendererInfo) renderer_info = {
 		max_texture_height = ri.max_texture_height,
 	};
 };
+
+// Get the number of 2D rendering drivers available for the current display.
+//
+// A render driver is a set of code that handles rendering and texture
+// management on a particular display. Normally there is only one, but some
+// drivers may have several available with different capabilities.
+//
+// There may be none if SDL was compiled without render support.
+export fn get_num_render_drivers() (int | sdl::error) =
+	wrapint(SDL_GetNumRenderDrivers());
 
 // Get info about a specific 2D rendering driver for the current display.
 export fn get_render_driver_info(index: int) (renderer_info | sdl::error) = {
@@ -121,17 +121,19 @@ export fn create_renderer(
 	window: *sdl::window,
 	index: int,
 	flags: renderer_flags,
-) (*renderer | sdl::error) = wrapptr(SDL_CreateRenderer(
-	window: *SDL_Window, index, flags: SDL_RendererFlags))?: *renderer;
+) (*renderer | sdl::error) = wrapptr(SDL_CreateRenderer(window: *SDL_Window,
+	index, flags: SDL_RendererFlags))?: *renderer;
 
 // Create a 2D software rendering context for a surface.
-// 
+//
 // Two other API which can be used to create [[renderer]]: [[create_renderer]]
 // and [[create_window_and_renderer]]. These can also create a software
 // renderer, but they are intended to be used with a [[window]] as the final
 // destination and not a [[surface]].
-export fn create_software_renderer(surface: *sdl::surface) (*renderer | sdl::error) =
-	wrapptr(SDL_CreateSoftwareRenderer(surface: *SDL_Surface))?: *renderer;
+export fn create_software_renderer(
+	surface: *sdl::surface,
+) (*renderer | sdl::error) = wrapptr(SDL_CreateSoftwareRenderer(
+	surface: *SDL_Surface))?: *renderer;
 
 // Get the renderer associated with a window.
 export fn get_renderer(window: *sdl::window) (*renderer | sdl::error) =
@@ -149,7 +151,7 @@ export fn get_renderer_info(renderer: *renderer) (renderer_info | sdl::error) = 
 };
 
 // Get the output size in pixels of a rendering context.
-// 
+//
 // Due to high-dpi displays, you might end up with a rendering context that
 // has more pixels than the window that contains it, so use this instead of
 // [[get_window_size]] to decide how much drawing area you have.
@@ -157,34 +159,32 @@ export fn get_renderer_output_size(
 	renderer: *renderer,
 	w: nullable *int,
 	h: nullable *int,
-) (void | sdl::error) = {
-	wrapvoid(SDL_GetRendererOutputSize(renderer: *SDL_Renderer, w, h))?;
-};
+) (void | sdl::error) = wrapvoid(SDL_GetRendererOutputSize(
+	renderer: *SDL_Renderer, w, h))?;
 
-// Clear the current rendering target with the drawing color.
-// 
-// This function clears the entire rendering target, ignoring the viewport and
-// the clip rectangle.
+// Clear the entire current rendering target with the drawing color, ignoring
+// the viewport and the clip rectangle.
 export fn render_clear(renderer: *renderer) (void | sdl::error) =
 	wrapvoid(SDL_RenderClear(renderer: *SDL_Renderer));
 
 // Update the screen with any rendering performed since the previous call.
-// 
+//
 // SDL's rendering functions operate on a backbuffer; that is, calling a
 // rendering function such as [[render_draw_line]] does not directly put a line
 // on the screen, but rather updates the backbuffer. As such, you compose your
 // entire scene and *present* the composed backbuffer to the screen as a
 // complete picture.
-// 
-// Therefore, when using SDL's rendering API, one does all drawing intended
-// for the frame, and then calls this function once per frame to present the
-// final drawing to the user.
-// 
+//
+// Therefore, when using SDL's rendering API, one does all drawing intended for
+// the frame, and then calls this function once per frame to present the final
+// drawing to the user.
+//
 // The backbuffer should be considered invalidated after each present; do not
 // assume that previous contents will exist between frames. You are strongly
 // encouraged to call [[render_clear]] to initialize the backbuffer before
 // starting each new frame's drawing, even if you plan to overwrite every
 // pixel.
+//
 // You may only call this function on the main thread. If this happens to work
 // on a background thread on any given platform or backend, it's purely by luck
 // and you should not rely on it to work next time.
@@ -192,19 +192,14 @@ export fn render_present(renderer: *renderer) void =
 	SDL_RenderPresent(renderer: *SDL_Renderer);
 
 // Create a texture for a rendering context.
-//
-// You can set the texture scaling method by setting
-// [[hints::RENDER_SCALE_QUALITY]] before creating the texture.
 export fn create_texture(
 	renderer: *renderer,
 	format: u32, // TODO
 	access: int, // TODO
 	w: int,
 	h: int,
-) (*texture | sdl::error) = {
-	return wrapptr(SDL_CreateTexture(renderer: *SDL_Renderer, format,
-		access, w, h))?: *texture;
-};
+) (*texture | sdl::error) = wrapptr(SDL_CreateTexture(renderer: *SDL_Renderer,
+	format, access, w, h))?: *texture;
 
 // Create a texture from an existing surface.
 //
@@ -216,10 +211,8 @@ export fn create_texture(
 export fn create_texture_from_surface(
 	renderer: *renderer,
 	surface: *sdl::surface,
-) (*texture | sdl::error) = {
-	return wrapptr(SDL_CreateTextureFromSurface(renderer: *SDL_Renderer,
-		surface: *SDL_Surface))?: *texture;
-};
+) (*texture | sdl::error) = wrapptr(SDL_CreateTextureFromSurface(
+	renderer: *SDL_Renderer, surface: *SDL_Surface))?: *texture;
 
 // Query the attributes of a texture.
 export fn query_texture(
@@ -228,10 +221,8 @@ export fn query_texture(
 	access: nullable *int,
 	w: nullable *int,
 	h: nullable *int,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_QueryTexture(texture: *SDL_Texture, format, access,
-		w, h));
-};
+) (void | sdl::error) = wrapvoid(SDL_QueryTexture(texture: *SDL_Texture,
+	format, access, w, h));
 
 // Set an additional color value multiplied into render copy operations.
 //
@@ -248,19 +239,17 @@ export fn set_texture_color_mod(
 	r: u8,
 	g: u8,
 	b: u8,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_SetTextureColorMod(texture: *SDL_Texture, r, g, b));
-};
+) (void | sdl::error) = wrapvoid(SDL_SetTextureColorMod(texture: *SDL_Texture,
+	r, g, b));
 
 // Get the additional color value multiplied into render copy operations.
 export fn get_texture_color_mod(
 	texture: *texture,
-	r: *u8,
+	r: *u8, // TODO: are these nullable?
 	g: *u8,
 	b: *u8,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_GetTextureColorMod(texture: *SDL_Texture, r, g, b));
-};
+) (void | sdl::error) = wrapvoid(SDL_GetTextureColorMod(texture: *SDL_Texture,
+	r, g, b));
 
 // Set an additional alpha value multiplied into render copy operations.
 //
@@ -269,14 +258,20 @@ export fn get_texture_color_mod(
 //
 //	srcA = srcA * (alpha / 255)
 //
-// Alpha modulation is not always supported by the renderer; it will return -1
-// if alpha modulation is not supported.
-export fn set_texture_alpha_mod(texture: *texture, alpha: u8) (void | sdl::error) =
-	wrapvoid(SDL_SetTextureAlphaMod(texture: *SDL_Texture, alpha));
+// Alpha modulation is not always supported by the renderer; it will return an
+// error if alpha modulation is not supported.
+export fn set_texture_alpha_mod(
+	texture: *texture,
+	alpha: u8,
+) (void | sdl::error) = wrapvoid(SDL_SetTextureAlphaMod(texture: *SDL_Texture,
+	alpha));
 
 // Get the additional alpha value multiplied into render copy operations.
-export fn get_texture_alpha_mod(texture: *texture, alpha: *u8) (void | sdl::error) =
-	wrapvoid(SDL_GetTextureAlphaMod(texture: *SDL_Texture, alpha));
+export fn get_texture_alpha_mod(
+	texture: *texture,
+	alpha: *u8,
+) (void | sdl::error) = wrapvoid(SDL_GetTextureAlphaMod(texture: *SDL_Texture,
+	alpha));
 
 // Set the blend mode for a texture, used by [[render_copy]].
 //
@@ -285,19 +280,15 @@ export fn get_texture_alpha_mod(texture: *texture, alpha: *u8) (void | sdl::erro
 export fn set_texture_blend_mode(
 	texture: *texture,
 	blendMode: sdl::blend_mode,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_SetTextureBlendMode(texture: *SDL_Texture,
-		blendMode: SDL_BlendMode));
-};
+) (void | sdl::error) = wrapvoid(SDL_SetTextureBlendMode(texture: *SDL_Texture,
+	blendMode: SDL_BlendMode));
 
 // Get the blend mode used for texture copy operations.
 export fn get_texture_blend_mode(
 	texture: *texture,
 	blendMode: *sdl::blend_mode,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_GetTextureBlendMode(texture: *SDL_Texture,
-		blendMode: *SDL_BlendMode));
-};
+) (void | sdl::error) = wrapvoid(SDL_GetTextureBlendMode(texture: *SDL_Texture,
+	blendMode: *SDL_BlendMode));
 
 // Set the scale mode used for texture scale operations.
 //
@@ -305,13 +296,13 @@ export fn get_texture_blend_mode(
 export fn set_texture_scale_mode(
 	texture: *texture,
 	scaleMode: scale_mode,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_SetTextureScaleMode(texture: *SDL_Texture,
-		scaleMode: SDL_ScaleMode));
-};
+) (void | sdl::error) = wrapvoid(SDL_SetTextureScaleMode(texture: *SDL_Texture,
+	scaleMode: SDL_ScaleMode));
 
 // Get the scale mode used for texture scale operations.
-export fn get_texture_scale_mode(texture: *texture) (scale_mode | sdl::error) = {
+export fn get_texture_scale_mode(
+	texture: *texture,
+) (scale_mode | sdl::error) = {
 	let sm = scale_mode::NEAREST;
 	wrapvoid(SDL_GetTextureScaleMode(texture: *SDL_Texture,
 		&sm: *SDL_ScaleMode))?;
@@ -319,19 +310,15 @@ export fn get_texture_scale_mode(texture: *texture) (scale_mode | sdl::error) = 
 };
 
 // Associate a user-specified pointer with a texture.
-// TODO can we set null? what does getter do then?
 export fn set_texture_user_data(
 	texture: *texture,
-	userdata: *opaque,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_SetTextureUserData(texture: *SDL_Texture,
-		userdata));
-};
+	userdata: *opaque, // TODO can we set null? what does getter do then?
+) (void | sdl::error) = wrapvoid(SDL_SetTextureUserData(texture: *SDL_Texture,
+	userdata));
 
 // Get the user-specified pointer associated with a texture
-export fn get_texture_user_data(texture: *texture) (*opaque | sdl::error) = {
-	return wrapptr(SDL_GetTextureUserData(texture: *SDL_Texture))?;
-};
+export fn get_texture_user_data(texture: *texture) (*opaque | sdl::error) =
+	wrapptr(SDL_GetTextureUserData(texture: *SDL_Texture))?;
 
 // Update the given texture rectangle with new pixel data.
 //
@@ -350,10 +337,8 @@ export fn update_texture(
 	rect: nullable *sdl::rect,
 	pixels: *opaque,
 	pitch: int,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_UpdateTexture(texture: *SDL_Texture,
-		rect: nullable *SDL_Rect, pixels, pitch));
-};
+) (void | sdl::error) = wrapvoid(SDL_UpdateTexture(texture: *SDL_Texture,
+	rect: nullable *SDL_Rect, pixels, pitch));
 
 // Update a rectangle within a planar YV12 or IYUV texture with new pixel
 // data.
@@ -370,11 +355,9 @@ export fn update_yuvtexture(
 	Upitch: int,
 	Vplane: *u8,
 	Vpitch: int,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_UpdateYUVTexture(texture: *SDL_Texture,
-		rect: nullable *SDL_Rect, Yplane, Ypitch, Uplane, Upitch,
-		Vplane, Vpitch));
-};
+) (void | sdl::error) = wrapvoid(SDL_UpdateYUVTexture(texture: *SDL_Texture,
+	rect: nullable *SDL_Rect, Yplane, Ypitch, Uplane, Upitch,
+	Vplane, Vpitch));
 
 // Update a rectangle within a planar NV12 or NV21 texture with new pixels.
 //
@@ -388,12 +371,10 @@ export fn update_nvtexture(
 	Ypitch: int,
 	UVplane: *u8,
 	UVpitch: int,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_UpdateNVTexture(texture: *SDL_Texture,
-		rect: nullable *SDL_Rect, Yplane, Ypitch, UVplane, UVpitch));
-};
+) (void | sdl::error) = wrapvoid(SDL_UpdateNVTexture(texture: *SDL_Texture,
+	rect: nullable *SDL_Rect, Yplane, Ypitch, UVplane, UVpitch));
 
-// Lock a portion of the texture for **write-only** pixel access.
+// Lock a portion of the texture for write-only pixel access.
 //
 // As an optimization, the pixels made available for editing don't necessarily
 // contain the old texture data. This is a write-only operation, and if you
@@ -402,8 +383,9 @@ export fn update_nvtexture(
 //
 // You must use [[unlock_texture]] to unlock the pixels and apply any
 // changes.
-// rect is a [[rect]] structure representing the area to lock for access; or
-// null to lock the entire texture.
+//
+// The texture must have been created with [[texture_access::STREAMING]].
+// rect may be null to lock the entire texture.
 // pixels is filled in with a pointer to the locked pixels, appropriately offset
 // by the locked area
 // pitch is filled in with the pitch of the locked pixels; the pitch is the
@@ -413,15 +395,13 @@ export fn lock_texture(
 	rect: nullable *sdl::rect,
 	pixels: **opaque,
 	pitch: *int,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_LockTexture(texture: *SDL_Texture,
-		rect: nullable *SDL_Rect, pixels, pitch));
-};
+) (void | sdl::error) = wrapvoid(SDL_LockTexture(texture: *SDL_Texture,
+	rect: nullable *SDL_Rect, pixels, pitch));
 
-// Lock a portion of the texture for **write-only** pixel access, and expose
+// Lock a portion of the texture for write-only pixel access, and expose
 // it as a SDL surface.
 //
-// Besides providing an [[surface]] instead of raw pixel data, this function
+// Besides providing a surface instead of raw pixel data, this function
 // operates like [[lock_texture]].
 //
 // As an optimization, the pixels made available for editing don't necessarily
@@ -435,26 +415,24 @@ export fn lock_texture(
 // The returned surface is freed internally after calling [[unlock_texture]]
 // or [[destroy_texture]]. The caller should not free it.
 //
-// The texture to lock for access must have been created with
-// texture_access::STREAMING.
-// rect is a pointer to the rectangle to lock for access. If the rect is null,
-// the entire texture will be locked.
-// surface is filled in with an SDL surface representing the locked area.
+// The texture must have been created with [[texture_access::STREAMING]].
+// rect may be null to lock the entire texture.
 export fn lock_texture_to_surface(
 	texture: *texture,
 	rect: nullable *sdl::rect,
-	surface: **sdl::surface,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_LockTextureToSurface(texture: *SDL_Texture,
-		rect: nullable *SDL_Rect, surface: **SDL_Surface));
+) (*sdl::surface| sdl::error) = {
+	let sfc: nullable *SDL_Surface = null;
+	wrapvoid(SDL_LockTextureToSurface(texture: *SDL_Texture,
+		rect: nullable *SDL_Rect, &sfc))?;
+	return sfc: *sdl::surface;
 };
 
 // Unlock a texture, uploading the changes to video memory, if needed.
 //
-// **Warning**: Please note that [[lock_texture]] is intended to be
-// write-only; it will not guarantee the previous contents of the texture will
-// be provided. You must fully initialize any area of a texture that you lock
-// before unlocking it, as the pixels might otherwise be uninitialized memory.
+// Warning: Please note that [[lock_texture]] is intended to be write-only;
+// it will not guarantee the previous contents of the texture will be provided.
+// You must fully initialize any area of a texture that you lock before
+// unlocking it, as the pixels might otherwise be uninitialized memory.
 //
 // Which is to say: locking and immediately unlocking a texture can result in
 // corrupted textures, depending on the renderer in use.
@@ -476,10 +454,8 @@ export fn render_target_supported(renderer: *renderer) bool =
 export fn set_render_target(
 	renderer: *renderer,
 	texture: nullable *texture,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_SetRenderTarget(renderer: *SDL_Renderer,
-		texture: nullable *SDL_Texture));
-};
+) (void | sdl::error) = wrapvoid(SDL_SetRenderTarget(renderer: *SDL_Renderer,
+	texture: nullable *SDL_Texture));
 
 // Get the current render target.
 //
@@ -487,8 +463,10 @@ export fn set_render_target(
 // and is reported as void here.
 export fn get_render_target(renderer: *renderer) (*texture | void) = {
 	match (SDL_GetRenderTarget(renderer: *SDL_Renderer)) {
-	case null => return void;
-	case let t: *SDL_Texture => return t: *texture;
+	case null =>
+		return void;
+	case let t: *SDL_Texture =>
+		return t: *texture;
 	};
 };
 
@@ -510,10 +488,8 @@ export fn render_set_logical_size(
 	renderer: *renderer,
 	w: int,
 	h: int,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderSetLogicalSize(renderer: *SDL_Renderer,
-		w, h));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderSetLogicalSize(
+	renderer: *SDL_Renderer, w, h));
 
 // Get device independent resolution for rendering.
 //
@@ -535,10 +511,8 @@ export fn render_get_logical_size(renderer: *renderer, w: *int, h: *int) void =
 export fn render_set_integer_scale(
 	renderer: *renderer,
 	enable: bool,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderSetIntegerScale(renderer: *SDL_Renderer,
-		enable));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderSetIntegerScale(
+	renderer: *SDL_Renderer, enable));
 
 // Get whether integer scales are forced for resolution-independent rendering.
 // False can also mean failure, lmao.
@@ -552,10 +526,8 @@ export fn render_get_integer_scale(renderer: *renderer) bool =
 export fn render_set_viewport(
 	renderer: *renderer,
 	rect: nullable *sdl::rect,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderSetViewport(renderer: *SDL_Renderer,
-		rect: nullable *SDL_Rect));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderSetViewport(renderer: *SDL_Renderer,
+	rect: nullable *SDL_Rect));
 
 // Get the drawing area for the current target.
 export fn render_get_viewport(renderer: *renderer, rect: *sdl::rect) void =

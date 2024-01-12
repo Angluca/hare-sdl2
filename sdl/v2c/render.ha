@@ -76,7 +76,7 @@ export @symbol("SDL_UpdateTexture") fn SDL_UpdateTexture(texture: *SDL_Texture, 
 export @symbol("SDL_UpdateYUVTexture") fn SDL_UpdateYUVTexture(texture: *SDL_Texture, rect: nullable *SDL_Rect, Yplane: *u8, Ypitch: int, Uplane: *u8, Upitch: int, Vplane: *u8, Vpitch: int) int;
 export @symbol("SDL_UpdateNVTexture") fn SDL_UpdateNVTexture(texture: *SDL_Texture, rect: nullable *SDL_Rect, Yplane: *u8, Ypitch: int, UVplane: *u8, UVpitch: int) int;
 export @symbol("SDL_LockTexture") fn SDL_LockTexture(texture: *SDL_Texture, rect: nullable *SDL_Rect, pixels: **opaque, pitch: *int) int;
-export @symbol("SDL_LockTextureToSurface") fn SDL_LockTextureToSurface(texture: *SDL_Texture, rect: nullable *SDL_Rect, surface: **SDL_Surface) int;
+export @symbol("SDL_LockTextureToSurface") fn SDL_LockTextureToSurface(texture: *SDL_Texture, rect: nullable *SDL_Rect, surface: *nullable *SDL_Surface) int;
 export @symbol("SDL_UnlockTexture") fn SDL_UnlockTexture(texture: *SDL_Texture) void;
 export @symbol("SDL_RenderTargetSupported") fn SDL_RenderTargetSupported(renderer: *SDL_Renderer) bool;
 export @symbol("SDL_SetRenderTarget") fn SDL_SetRenderTarget(renderer: *SDL_Renderer, texture: nullable *SDL_Texture) int;
