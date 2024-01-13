@@ -555,8 +555,8 @@ export fn render_is_clip_enabled(renderer: *renderer) bool =
 
 // Set the drawing scale for rendering on the current target.
 //
-// The drawing coordinates are scaled by the x/y scaling factors before they
-// are used by the renderer. This allows resolution independent drawing with a
+// The drawing coordinates are scaled by the x/y scaling factors before they are
+// used by the renderer. This allows resolution independent drawing with a
 // single coordinate system.
 //
 // If this results in scaling or subpixel drawing by the rendering backend, it
@@ -566,10 +566,8 @@ export fn render_set_scale(
 	renderer: *renderer,
 	scaleX: f32,
 	scaleY: f32,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderSetScale(renderer: *SDL_Renderer,
-		scaleX, scaleY));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderSetScale(renderer: *SDL_Renderer,
+	scaleX, scaleY));
 
 // Get the drawing scale for the current target.
 export fn render_get_scale(
@@ -582,17 +580,15 @@ export fn render_get_scale(
 // point in window.
 //
 // Logical coordinates will differ from real coordinates when render is scaled
-// and logical renderer size set
+// and logical renderer size set.
 export fn render_window_to_logical(
 	renderer: *renderer,
 	windowX: int,
 	windowY: int,
 	logicalX: *f32,
 	logicalY: *f32,
-) void = {
-	return SDL_RenderWindowToLogical(renderer: *SDL_Renderer,
-		windowX, windowY, logicalX, logicalY);
-};
+) void = SDL_RenderWindowToLogical(renderer: *SDL_Renderer, windowX, windowY,
+	logicalX, logicalY);
 
 // Get real coordinates of point in window when given logical coordinates of
 // point in renderer.
@@ -605,25 +601,18 @@ export fn render_logical_to_window(
 	logicalY: f32,
 	windowX: *int,
 	windowY: *int,
-) void = {
-	return SDL_RenderLogicalToWindow(renderer: *SDL_Renderer,
-		logicalX, logicalY, windowX, windowY);
-};
+) void = SDL_RenderLogicalToWindow(renderer: *SDL_Renderer, logicalX, logicalY,
+	windowX, windowY);
 
 // Set the color used for drawing operations (Rect, Line and Clear).
-//
-// Set the color for drawing or filling rectangles, lines, and points, and for
-// [[render_clear]].
 export fn set_render_draw_color(
 	renderer: *renderer,
 	r: u8,
 	g: u8,
 	b: u8,
 	a: u8,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_SetRenderDrawColor(renderer: *SDL_Renderer,
-		r, g, b, a));
-};
+) (void | sdl::error) = wrapvoid(SDL_SetRenderDrawColor(renderer: *SDL_Renderer,
+	r, g, b, a));
 
 // Get the color used for drawing operations (Rect, Line and Clear).
 export fn get_render_draw_color(
@@ -632,10 +621,8 @@ export fn get_render_draw_color(
 	g: *u8,
 	b: *u8,
 	a: *u8,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_GetRenderDrawColor(renderer: *SDL_Renderer,
-		r, g, b, a));
-};
+) (void | sdl::error) = wrapvoid(SDL_GetRenderDrawColor(renderer: *SDL_Renderer,
+	r, g, b, a));
 
 // Set the blend mode used for drawing operations (Fill and Line).
 //
@@ -643,54 +630,43 @@ export fn get_render_draw_color(
 export fn set_render_draw_blend_mode(
 	renderer: *renderer,
 	blendMode: sdl::blend_mode,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_SetRenderDrawBlendMode(renderer: *SDL_Renderer,
-		blendMode: SDL_BlendMode));
-};
+) (void | sdl::error) = wrapvoid(SDL_SetRenderDrawBlendMode(
+	renderer: *SDL_Renderer, blendMode: SDL_BlendMode));
 
 // Get the blend mode used for drawing operations.
 export fn get_render_draw_blend_mode(
 	renderer: *renderer,
 	blendMode: *sdl::blend_mode,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_GetRenderDrawBlendMode(renderer: *SDL_Renderer,
-		blendMode: *SDL_BlendMode));
-};
+) (void | sdl::error) = wrapvoid(SDL_GetRenderDrawBlendMode(
+	renderer: *SDL_Renderer, blendMode: *SDL_BlendMode));
 
 // Draw a point on the current rendering target.
-//
-// [[render_draw_point]] draws a single point. If you want to draw multiple,
-// use [[render_draw_points]] instead.
 export fn render_draw_point(
 	renderer: *renderer,
 	x: int,
 	y: int,
-) (void | sdl::error) = wrapvoid(SDL_RenderDrawPoint(renderer: *SDL_Renderer, x, y));
+) (void | sdl::error) = wrapvoid(SDL_RenderDrawPoint(renderer: *SDL_Renderer,
+	x, y));
 
 // Draw multiple points on the current rendering target.
 export fn render_draw_points(
 	renderer: *renderer,
 	points: []sdl::point,
 ) (void | sdl::error) = {
-	let sl = &points: *types::slice;
+	const sl = &points: *types::slice;
 	return wrapvoid(SDL_RenderDrawPoints(renderer: *SDL_Renderer,
 		sl.data: *SDL_Point, sl.length: int));
 };
 
 // Draw a line on the current rendering target.
-//
-// [[render_draw_line]] draws the line to include both end points. If you want
-// to draw multiple, connecting lines use [[render_draw_lines]] instead.
 export fn render_draw_line(
 	renderer: *renderer,
 	x1: int,
 	y1: int,
 	x2: int,
 	y2: int,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderDrawLine(renderer: *SDL_Renderer,
-		x1, y1, x2, y2));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderDrawLine(renderer: *SDL_Renderer,
+	x1, y1, x2, y2));
 
 // Draw a series of connected lines on the current rendering target. Draws
 // len(points) - 1 lines.
@@ -698,27 +674,25 @@ export fn render_draw_lines(
 	renderer: *renderer,
 	points: []sdl::point,
 ) (void | sdl::error) = {
-	let sl = &points: *types::slice;
+	const sl = &points: *types::slice;
 	return wrapvoid(SDL_RenderDrawLines(renderer: *SDL_Renderer,
 		sl.data: *SDL_Point, sl.length: int));
 };
 
-// Draw a rectangle on the current rendering target.
-// rect may be null to outline the entire rendering target
+// Draw a rectangle on the current rendering target. rect may be null to outline
+// the entire rendering target
 export fn render_draw_rect(
 	renderer: *renderer,
 	rect: nullable *sdl::rect,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderDrawRect(renderer: *SDL_Renderer,
-		rect: nullable *SDL_Rect));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderDrawRect(renderer: *SDL_Renderer,
+	rect: nullable *SDL_Rect));
 
-// Draw some number of rectangles on the current rendering target.
+// Draw a number of rectangles on the current rendering target.
 export fn render_draw_rects(
 	renderer: *renderer,
 	rects: []sdl::rect,
 ) (void | sdl::error) = {
-	let sl = &rects: *types::slice;
+	const sl = &rects: *types::slice;
 	return wrapvoid(SDL_RenderDrawRects(renderer: *SDL_Renderer,
 		sl.data: *SDL_Rect, sl.length: int));
 };
@@ -733,18 +707,16 @@ export fn render_draw_rects(
 export fn render_fill_rect(
 	renderer: *renderer,
 	rect: nullable *sdl::rect,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderFillRect(renderer: *SDL_Renderer,
+) (void | sdl::error) = wrapvoid(SDL_RenderFillRect(renderer: *SDL_Renderer,
 		rect: nullable *SDL_Rect));
-};
 
-// Fill some number of rectangles on the current rendering target with the
-// drawing color.
+// Fill a number of rectangles on the current rendering target with the drawing
+// color.
 export fn render_fill_rects(
 	renderer: *renderer,
 	rects: []sdl::rect,
 ) (void | sdl::error) = {
-	let sl = &rects: *types::slice;
+	const sl = &rects: *types::slice;
 	return wrapvoid(SDL_RenderFillRects(renderer: *SDL_Renderer,
 		sl.data: *SDL_Rect, sl.length: int));
 };
@@ -760,19 +732,17 @@ export fn render_fill_rects(
 // The texture alpha is affected based on its alpha modulation set by
 // [[set_texture_alpha_mod]].
 //
-// srcrect may be null for the entire texture.
-// dstrect may be null for the entire rendering target; the texture will be
-// stretched to fill the given rectangle.
+// - srcrect may be null for the entire texture.
+// - dstrect may be null for the entire rendering target; the texture will be
+//   stretched to fill the given rectangle.
 export fn render_copy(
 	renderer: *renderer,
 	texture: *texture,
 	srcrect: nullable *sdl::rect,
 	dstrect: nullable *sdl::rect,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderCopy(renderer: *SDL_Renderer,
-		texture: *SDL_Texture, srcrect: nullable *SDL_Rect,
-		dstrect: nullable *SDL_Rect));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderCopy(renderer: *SDL_Renderer,
+	texture: *SDL_Texture, srcrect: nullable *SDL_Rect,
+	dstrect: nullable *SDL_Rect));
 
 // Copy a portion of the texture to the current rendering, with optional
 // rotation and flipping.
@@ -790,14 +760,14 @@ export fn render_copy(
 // The texture alpha is affected based on its alpha modulation set by
 // [[set_texture_alpha_mod]].
 //
-// srcrect may be null for the entire texture.
-// dstrect may be null for the entire rendering target; the texture will be
-// stretched to fill the given rectangle.
-// angle is an angle in degrees that indicates the rotation that will be
-// applied to dstrect, rotating it in a clockwise direction
-// center is a pointer to a point indicating the point around which dstrect
-// will be rotated (if null, rotation will be done around dstrect.w / 2,
-// dstrect.h / 2.
+// - srcrect may be null for the entire texture.
+// - dstrect may be null for the entire rendering target; the texture will be
+//   stretched to fill the given rectangle.
+// - angle is an angle in degrees that indicates the rotation that will be
+//   applied to dstrect, rotating it in a clockwise direction.
+// - center is a pointer to a point indicating the point around which dstrect
+//   will be rotated (if null, rotation will be done around dstrect.w / 2,
+//   dstrect.h / 2).
 export fn render_copy_ex(
 	renderer: *renderer,
 	texture: *texture,
@@ -806,28 +776,25 @@ export fn render_copy_ex(
 	angle: f64,
 	center: nullable *sdl::point,
 	flip: renderer_flip,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderCopyEx(renderer: *SDL_Renderer,
-		texture: *SDL_Texture, srcrect: nullable *SDL_Rect,
-		dstrect: nullable *SDL_Rect, angle, center: nullable *SDL_Point,
-		flip: SDL_RendererFlip));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderCopyEx(renderer: *SDL_Renderer,
+	texture: *SDL_Texture, srcrect: nullable *SDL_Rect,
+	dstrect: nullable *SDL_Rect, angle, center: nullable *SDL_Point,
+	flip: SDL_RendererFlip));
 
 // Draw a point on the current rendering target at subpixel precision.
 export fn render_draw_point_f(
 	renderer: *renderer,
 	x: f32,
 	y: f32,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderDrawPointF(renderer: *SDL_Renderer, x, y));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderDrawPointF(renderer: *SDL_Renderer,
+	x, y));
 
 // Draw multiple points on the current rendering target at subpixel precision.
 export fn render_draw_points_f(
 	renderer: *renderer,
 	points: []sdl::fpoint,
 ) (void | sdl::error) = {
-	let sl = &points: *types::slice;
+	const sl = &points: *types::slice;
 	return wrapvoid(SDL_RenderDrawPointsF(renderer: *SDL_Renderer,
 		sl.data: *SDL_FPoint, sl.length: int));
 };
@@ -839,10 +806,8 @@ export fn render_draw_line_f(
 	y1: f32,
 	x2: f32,
 	y2: f32,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderDrawLineF(renderer: *SDL_Renderer,
-		x1, y1, x2, y2));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderDrawLineF(renderer: *SDL_Renderer,
+	x1, y1, x2, y2));
 
 // Draw a series of connected lines on the current rendering target at
 // subpixel precision. Draws len(points) - 1 lines.
@@ -850,77 +815,73 @@ export fn render_draw_lines_f(
 	renderer: *renderer,
 	points: []sdl::fpoint,
 ) (void | sdl::error) = {
-	let sl = &points: *types::slice;
+	const sl = &points: *types::slice;
 	return wrapvoid(SDL_RenderDrawLinesF(renderer: *SDL_Renderer,
 		sl.data: *SDL_FPoint, sl.length: int));
 };
 
-// Draw a rectangle on the current rendering target at subpixel precision.
-// rect may be null to outline the entire rendering target.
+// Draw a rectangle on the current rendering target at subpixel precision. rect
+// may be null to outline the entire rendering target.
 export fn render_draw_rect_f(
 	renderer: *renderer,
 	rect: nullable *sdl::frect,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderDrawRectF(renderer: *SDL_Renderer,
-		rect: nullable *SDL_FRect));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderDrawRectF(renderer: *SDL_Renderer,
+	rect: nullable *SDL_FRect));
 
-// Draw some number of rectangles on the current rendering target at subpixel
+// Draw a number of rectangles on the current rendering target at subpixel
 // precision.
 export fn render_draw_rects_f(
 	renderer: *renderer,
 	rects: []sdl::frect,
 ) (void | sdl::error) = {
-	let sl = &rects: *types::slice;
+	const sl = &rects: *types::slice;
 	return wrapvoid(SDL_RenderDrawRectsF(renderer: *SDL_Renderer,
 		sl.data: *SDL_FRect, sl.length: int));
 };
 
 // Fill a rectangle on the current rendering target with the drawing color at
-// subpixel precision.
-// rect may be null for the entire rendering target.
+// subpixel precision. rect may be null for the entire rendering target.
 export fn render_fill_rect_f(
 	renderer: *renderer,
 	rect: nullable *sdl::frect,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderFillRectF(renderer: *SDL_Renderer,
-		rect: nullable *SDL_FRect));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderFillRectF(renderer: *SDL_Renderer,
+	rect: nullable *SDL_FRect));
 
-// Fill some number of rectangles on the current rendering target with the
+// Fill a number of rectangles on the current rendering target with the
 // drawing color at subpixel precision.
 export fn render_fill_rects_f(
 	renderer: *renderer,
 	rects: []sdl::frect,
 ) (void | sdl::error) = {
-	let sl = &rects: *types::slice;
+	const sl = &rects: *types::slice;
 	return wrapvoid(SDL_RenderFillRectsF(renderer: *SDL_Renderer,
 		sl.data: *SDL_FRect, sl.length: int));
 };
 
 // Copy a portion of the texture to the current rendering target at subpixel
 // precision.
-// srcrect may be null for the entire texture.
-// dstrect may be null for the entire rendering target.
+//
+// - srcrect may be null for the entire texture.
+// - dstrect may be null for the entire rendering target.
 export fn render_copy_f(
 	renderer: *renderer,
 	texture: *texture,
 	srcrect: nullable *sdl::rect,
 	dstrect: nullable *sdl::frect,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderCopyF(renderer: *SDL_Renderer,
-		texture: *SDL_Texture, srcrect: nullable *SDL_Rect,
-		dstrect: nullable *SDL_FRect));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderCopyF(renderer: *SDL_Renderer,
+	texture: *SDL_Texture, srcrect: nullable *SDL_Rect,
+	dstrect: nullable *SDL_FRect));
 
 // Copy a portion of the source texture to the current rendering target, with
 // rotation and flipping, at subpixel precision.
-// srcrect may be null for the entire texture.
-// dstrect may be null for the entire rendering target.
-// angle is n angle in degrees that indicates the rotation that will be
-// applied to dstrect, rotating it in a clockwise direction.
-// center is a pointer to a point indicating the point around which dstrect will
-// be rotated (if null, rotation will be done around dstrect.w/2, dstrect.h/2).
+//
+// - srcrect may be null for the entire texture.
+// - dstrect may be null for the entire rendering target.
+// - angle is an angle in degrees that indicates the rotation that will be
+//   applied to dstrect, rotating it in a clockwise direction.
+// - center is a pointer to a point indicating the point around which dstrect
+//   will be rotated (if null, rotation will be done around dstrect.w / 2,
+//   dstrect.h / 2).
 export fn render_copy_ex_f(
 	renderer: *renderer,
 	texture: *texture,
@@ -929,12 +890,10 @@ export fn render_copy_ex_f(
 	angle: f64,
 	center: nullable *sdl::fpoint,
 	flip: renderer_flip,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderCopyExF(renderer: *SDL_Renderer,
-		texture: *SDL_Texture, srcrect: nullable *SDL_Rect,
-		dstrect: nullable *SDL_FRect, angle,
-		center: nullable *SDL_FPoint, flip: SDL_RendererFlip));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderCopyExF(renderer: *SDL_Renderer,
+	texture: *SDL_Texture, srcrect: nullable *SDL_Rect,
+	dstrect: nullable *SDL_FRect, angle,
+	center: nullable *SDL_FPoint, flip: SDL_RendererFlip));
 
 // Render a list of triangles, optionally using a texture and indices into the
 // vertex array Color and alpha modulation is done per vertex
@@ -963,17 +922,17 @@ export fn render_geometry(
 // vertex arrays Color and alpha modulation is done per vertex
 // ([[set_texture_color_mod]] and [[set_texture_alpha_mod]] are ignored).
 //
-// xy is the vertex positions.
-// xy_stride is the byte size to move from one element to the next element.
-// color is the vertex colors.
-// color_stride is the byte size to move from one element to the next element
-// uv is vertex normalized texture coordinates.
-// uv_stride is byte size to move from one element to the next element
-// num_vertices is the number of vertices.
-// indices is an optional array of indices into the vertices arrays. If null,
-// all vertices will be rendered in sequential order.
-// num_indices is the number of indices.
-// size_indices is the index size: 1 (byte), 2 (short), 4 (int)
+// - xy is the vertex positions.
+// - xy_stride is the byte size to move from one element to the next element.
+// - color is the vertex colors.
+// - color_stride is the byte size to move from one element to the next element.
+// - uv is vertex normalized texture coordinates.
+// - uv_stride is byte size to move from one element to the next element.
+// - num_vertices is the number of vertices.
+// - indices is an optional array of indices into the vertices arrays. If null,
+//   all vertices will be rendered in sequential order.
+// - num_indices is the number of indices.
+// - size_indices is the index size: 1 (byte), 2 (short), 4 (int)
 // TODO should we give this a makeover?
 export fn render_geometry_raw(
 	renderer: *renderer,
@@ -988,29 +947,27 @@ export fn render_geometry_raw(
 	indices: nullable *opaque,
 	num_indices: int,
 	size_indices: int,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderGeometryRaw(renderer: *SDL_Renderer,
-		texture: nullable *SDL_Texture, xy, xy_stride,
-		color: *SDL_Color, color_stride, uv, uv_stride,
-		num_vertices, indices, num_indices, size_indices));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderGeometryRaw(renderer: *SDL_Renderer,
+	texture: nullable *SDL_Texture, xy, xy_stride,
+	color: *SDL_Color, color_stride, uv, uv_stride,
+	num_vertices, indices, num_indices, size_indices));
 
 // Read pixels from the current rendering target to an array of pixels.
 //
-// **WARNING**: This is a very slow operation, and should not be used
-// frequently. If you're using this on the main rendering target, it should be
-// called after rendering and before [[render_present]].
+// WARNING: This is a very slow operation, and should not be used frequently. If
+// you're using this on the main rendering target, it should be called after
+// rendering and before [[render_present]].
 //
-// pitch specifies the number of bytes between rows in the destination
-// pixels data. This allows you to write to a subrectangle or have padded
-// rows in the destination. Generally, pitch should equal the number of
-// pixels per row in the pixels data times the number of bytes per pixel,
-// but it might contain additional padding.
+// pitch specifies the number of bytes between rows in the destination pixels
+// data. This allows you to write to a subrectangle or have padded rows in the
+// destination. Generally, pitch should equal the number of pixels per row in
+// the pixels data times the number of bytes per pixel, but it might contain
+// additional padding.
 //
-// rect may be null for the entire render target
-// format may be 0 to use the format of the rendering target.
-// pixels is a pointer to the pixel data to copy into.
-// pitch is the pitch of the pixels parameter.
+// - rect may be null for the entire render target.
+// - format may be 0 to use the format of the rendering target.
+// - pixels is a pointer to the pixel data to copy into.
+// - pitch is the pitch of the pixels parameter.
 // TODO makeover mage?
 export fn render_read_pixels(
 	renderer: *renderer,
@@ -1018,10 +975,8 @@ export fn render_read_pixels(
 	format: u32,
 	pixels: *opaque,
 	pitch: int,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_RenderReadPixels(renderer: *SDL_Renderer,
-		rect: nullable *SDL_Rect, format, pixels, pitch));
-};
+) (void | sdl::error) = wrapvoid(SDL_RenderReadPixels(renderer: *SDL_Renderer,
+	rect: nullable *SDL_Rect, format, pixels, pitch));
 
 // Destroy the specified texture.
 export fn destroy_texture(texture: *texture) void =
@@ -1075,18 +1030,18 @@ export fn gl_bind_texture(
 	texture: *texture,
 	texw: nullable *f32,
 	texh: nullable *f32,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_GL_BindTexture(texture: *SDL_Texture, texw, texh));
-};
+) (void | sdl::error) = wrapvoid(SDL_GL_BindTexture(texture: *SDL_Texture,
+	texw, texh));
 
 // Unbind an OpenGL/ES/ES2 texture from the current context.
-//
-// See [[gl_bind_texture]] for examples on how to use these functions
 export fn gl_unbind_texture(texture: *texture) (void | sdl::error) =
 	wrapvoid(SDL_GL_UnbindTexture(texture: *SDL_Texture));
 
 // Toggle VSync of the given renderer.
-export fn render_set_vsync(renderer: *renderer, vsync: bool) (void | sdl::error) = {
+export fn render_set_vsync(
+	renderer: *renderer,
+	vsync: bool,
+) (void | sdl::error) = {
 	if (SDL_RenderSetVSync(renderer: *SDL_Renderer,
 			if (vsync) 1 else 0) != 0)
 		return get_error();

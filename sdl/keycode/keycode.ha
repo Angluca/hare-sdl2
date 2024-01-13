@@ -1,11 +1,8 @@
 use sdl = sdl::scancode;
 
-// TODO
-export type keycode = i32;
-
 def SCANCODE_MASK = 1 << 30;
 
-export type key_code = enum uint {
+export type keycode = enum uint {
 	UNKNOWN = 0,
 
 	RETURN = '\r',
