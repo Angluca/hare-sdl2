@@ -5,6 +5,7 @@ use sdl = sdl::rect;
 use sdl = sdl::surface;
 use sdl::v2c::*;
 
+// Display orientation.
 export type display_orientation = enum i32 {
 	// The display orientation can't be determined.
 	UNKNOWN,
@@ -79,14 +80,14 @@ export type dpi = struct {
 };
 
 // Get the dots/pixels-per-inch for a display.
-// 
+//
 // A failure of this function usually means that either no DPI information is
 // available or the index is out of range.
-// 
-// **WARNING**: This reports the DPI that the hardware reports, and it is not
-// always reliable! It is almost always better to use SDL_GetWindowSize() to
-// find the window size, which might be in logical points instead of pixels,
-// and then [[gl_get_drawable_size]], vulkan_get_drawable_size, or
+//
+// WARNING: This reports the DPI that the hardware reports, and it is not always
+// reliable! It is almost always better to use SDL_GetWindowSize() to find the
+// window size, which might be in logical points instead of pixels, and then
+// [[gl_get_drawable_size]], vulkan_get_drawable_size, or
 // [[get_renderer_output_size]], and compare the two values to get an actual
 // scaling value between the two. We will be rethinking how high-dpi details
 // should be managed in SDL3 to make things more consistent, reliable, and
@@ -181,17 +182,17 @@ export def WINDOWPOS_CENTERED = 0x2FFF0000;
 // drawable size can vary after the window is created and should be queried
 // after major window events such as when the window is resized or moved between
 // displays.
-// 
+//
 // If the window is set fullscreen, the width and height parameters w and h will
 // not be used. However, invalid size parameters (e.g. too large) may still
 // fail. Window size is actually limited to 16384 x 16384 for all platforms at
 // window creation.
-// 
+//
 // If the window is created with any of the OPENGL or VULKAN flags, then the
 // corresponding load_library function ([[gl_load_library]] or
 // vulkan_load_library) is called and the corresponding unload_library
 // function is called by [[destroy_window]].
-// 
+//
 // If VULKAN is specified and there isn't a working Vulkan driver,
 // [[create_window]] will fail because vulkan_load_library will fail.
 export fn create_window(
@@ -208,7 +209,7 @@ export fn create_window(
 };
 
 // Create an SDL window from an existing native window.
-// 
+//
 // In some cases (e.g. OpenGL) and on some platforms, the hint
 // [[hints::VIDEO_WINDOW_SHARE_PIXEL_FORMAT]] needs to be configured
 // before using [[create_window_from]].
@@ -216,7 +217,7 @@ export fn create_window_from(data: *opaque) (*window | sdl::error) =
 	wrapptr(SDL_CreateWindowFrom(data))?: *window;
 
 // Get the numeric ID of a window.
-// 
+//
 // The numeric ID is what window events reference, and is necessary to map these
 // events to specific window objects.
 export fn get_window_id(window: *window) (window_id | sdl::error) = {
@@ -226,7 +227,7 @@ export fn get_window_id(window: *window) (window_id | sdl::error) = {
 };
 
 // Get a window from a stored ID.
-// 
+//
 // The numeric ID is what window events reference, and is necessary to map these
 // events to specific window objects.
 export fn get_window_from_id(id: window_id) (*window | sdl::error) =
@@ -237,9 +238,9 @@ export fn get_window_flags(window: *window) window_flags =
 	SDL_GetWindowFlags(window: *SDL_Window): window_flags;
 
 // Get the size of a window's client area.
-// 
+//
 // Result is the pair (width, height).
-// 
+//
 // The window size in screen coordinates may differ from the size in pixels,
 // if the window was created with ALLOW_HIGHDPI on a platform with high-dpi
 // support. Use [[gl_get_drawable_size]], vulkan_get_drawable_size, or
@@ -255,35 +256,34 @@ export fn has_window_surface(window: *window) bool =
 	SDL_HasWindowSurface(window: *SDL_Window);
 
 // Get the SDL surface associated with the window.
-// 
+//
 // A new surface will be created with the optimal format for the window, if
 // necessary. This surface will be freed when the window is destroyed. Do not
 // free this surface.
-// 
+//
 // This surface will be invalidated if the window is resized. After resizing a
 // window this function must be called again to return a valid surface.
-// 
+//
 // You may not combine this with 3D or the rendering API on this window.
-// 
-// This function is affected by `SDL_HINT_FRAMEBUFFER_ACCELERATION`.
-// TODO hint name?
+//
+// This function is affected by the FRAMEBUFFER_ACCELERATION hint.
 export fn get_window_surface(window: *window) (*sdl::surface | sdl::error) =
 	wrapptr(SDL_GetWindowSurface(window: *SDL_Window))?: *sdl::surface;
 
 // Copy the window surface to the screen.
-// 
+//
 // This is the function you use to reflect any changes to the surface on the
 // screen.
-// 
+//
 // This function is equivalent to the SDL 1.2 API SDL_Flip().
 export fn update_window_surface(window: *window) (void | sdl::error) =
 	wrapvoid(SDL_UpdateWindowSurface(window: *SDL_Window))?;
 
 // Copy areas of the window surface to the screen.
-// 
+//
 // This is the function you use to reflect changes to portions of the surface
 // on the screen.
-// 
+//
 // This function is equivalent to the SDL 1.2 API SDL_UpdateRects().
 export fn update_window_surface_rects(
 	window: *window,
@@ -354,22 +354,19 @@ export fn get_window_position(
 	window: *window,
 	x: nullable *int,
 	y: nullable *int,
-) void = {
-	return SDL_GetWindowPosition(window: *SDL_Window, x, y);
-};
+) void = SDL_GetWindowPosition(window: *SDL_Window, x, y);
 
 // Set the size of a window's client area.
 //
-// The window size in screen coordinates may differ from the size in pixels,
-// if the window was created with ALLOW_HIGHDPI on a platform with high-dpi
-// support. Use [[gl_get_drawable_size]] or
-// [[get_renderer_output_size]] to get the real client area size in pixels.
+// The window size in screen coordinates may differ from the size in pixels, if
+// the window was created with ALLOW_HIGHDPI on a platform with high-dpi
+// support. Use [[gl_get_drawable_size]] or [[get_renderer_output_size]] to get
+// the real client area size in pixels.
 //
 // Fullscreen windows automatically match the size of the display mode, and
 // you should use set_window_display_mode to change their size.
-export fn set_window_size(window: *window, w: int, h: int) void = {
-	return SDL_SetWindowSize(window: *SDL_Window, w, h);
-};
+export fn set_window_size(window: *window, w: int, h: int) void =
+	SDL_SetWindowSize(window: *SDL_Window, w, h);
 
 // Get the size of a window's borders (decorations) around the client area.
 //
@@ -390,10 +387,8 @@ export fn get_window_borders_size(
 	left: nullable *int,
 	bottom: nullable *int,
 	right: nullable *int,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_GetWindowBordersSize(window: *SDL_Window,
-		top, left, bottom, right));
-};
+) (void | sdl::error) = wrapvoid(SDL_GetWindowBordersSize(window: *SDL_Window,
+	top, left, bottom, right));
 
 // Get the size of a window in pixels.
 //
@@ -401,7 +396,6 @@ export fn get_window_borders_size(
 // drawable, i.e. the window was created with ALLOW_HIGHDPI on a platform
 // with high-DPI support (Apple calls this "Retina"), and not disabled by the
 // [[hints::VIDEO_HIGHDPI_DISABLED]] hint.
-// TODO hint names?
 export fn get_window_size_in_pixels(
 	window: *window,
 	w: nullable *int,
@@ -495,9 +489,8 @@ export fn restore_window(window: *window) void =
 export fn set_window_fullscreen(
 	window: *window,
 	flags: window_flags,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_SetWindowFullscreen(window: *SDL_Window, flags));
-};
+) (void | sdl::error) = wrapvoid(SDL_SetWindowFullscreen(window: *SDL_Window,
+	flags));
 
 // Set a window's input grab mode.
 //
@@ -507,9 +500,8 @@ export fn set_window_fullscreen(
 //
 // If the caller enables a grab while another window is currently grabbed, the
 // other window loses its grab in favor of the caller's window.
-export fn set_window_grab(window: *window, grabbed: bool) void = {
-	return SDL_SetWindowGrab(window: *SDL_Window, grabbed);
-};
+export fn set_window_grab(window: *window, grabbed: bool) void =
+	SDL_SetWindowGrab(window: *SDL_Window, grabbed);
 
 // Set a window's keyboard grab mode.
 //
@@ -566,10 +558,8 @@ export fn get_grabbed_window() (*window | void) = {
 export fn set_window_mouse_rect(
 	window: *window,
 	rect: nullable *sdl::rect,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_SetWindowMouseRect(window: *SDL_Window,
-		rect: nullable *SDL_Rect));
-};
+) (void | sdl::error) = wrapvoid(SDL_SetWindowMouseRect(window: *SDL_Window,
+	rect: nullable *SDL_Rect));
 
 // Get the mouse confinement rectangle of a window.
 export fn get_window_mouse_rect(window: *window) (*sdl::rect | void) = {
@@ -591,16 +581,13 @@ export fn get_window_mouse_rect(window: *window) (*sdl::rect | void) = {
 // Many platforms will refuse to set the display brightness in modern times.
 // You are better off using a shader to adjust gamma during rendering, or
 // something similar.
-
-// brightness the brightness (gamma multiplier) value to set where 0.0 is
-// completely dark and 1.0 is normal brightness.
+//
+// 0.0 is completely dark and 1.0 is normal brightness.
 export fn set_window_brightness(
 	window: *window,
 	brightness: f32,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_SetWindowBrightness(window: *SDL_Window,
-		brightness));
-};
+) (void | sdl::error) = wrapvoid(SDL_SetWindowBrightness(window: *SDL_Window,
+	brightness));
 
 // Get the brightness (gamma multiplier) for a given window's display.
 //
@@ -614,10 +601,8 @@ export fn set_window_brightness(
 export fn get_window_brightness(window: *window) f32 =
 	SDL_GetWindowBrightness(window: *SDL_Window);
 
-// Set the opacity for a window.
-//
-// The parameter opacity will be clamped internally between 0.0f (transparent)
-// and 1.0f (opaque).
+// Set the opacity for a window. The opacity will be clamped internally between
+// 0.0 (transparent) and 1.0 (opaque).
 export fn set_window_opacity(window: *window, opacity: f32) (void | sdl::error) = {
 	return wrapvoid(SDL_SetWindowOpacity(window: *SDL_Window, opacity));
 };
@@ -636,10 +621,8 @@ export fn get_window_opacity(window: *window) (f32 | sdl::error) = {
 export fn set_window_modal_for(
 	modal_window: *window,
 	parent_window: *window,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_SetWindowModalFor(modal_window: *SDL_Window,
-		parent_window: *SDL_Window));
-};
+) (void | sdl::error) = wrapvoid(SDL_SetWindowModalFor(
+	modal_window: *SDL_Window, parent_window: *SDL_Window));
 
 // Explicitly set input focus to the window.
 //
@@ -668,10 +651,8 @@ export fn set_window_gamma_ramp(
 	red: nullable *u16,
 	green: nullable *u16,
 	blue: nullable *u16,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_SetWindowGammaRamp(window: *SDL_Window,
-		red, green, blue));
-};
+) (void | sdl::error) = wrapvoid(SDL_SetWindowGammaRamp(window: *SDL_Window,
+	red, green, blue));
 
 // Get the gamma ramp for a given window's display.
 //
@@ -685,10 +666,8 @@ export fn get_window_gamma_ramp(
 	red: nullable *u16,
 	green: nullable *u16,
 	blue: nullable *u16,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_GetWindowGammaRamp(window: *SDL_Window,
-		red, green, blue));
-};
+) (void | sdl::error) = wrapvoid(SDL_GetWindowGammaRamp(window: *SDL_Window,
+	red, green, blue));
 
 // Possible return values from the hit_test callback.
 export type hit_test_result = enum {
@@ -705,7 +684,7 @@ export type hit_test_result = enum {
 };
 
 // Callback used for hit-testing.
-export type hit_test = nullable *fn(
+export type hit_test = fn(
 	win: *window,
 	area: *sdl::point,
 	data: *opaque,
@@ -743,12 +722,10 @@ export type hit_test = nullable *fn(
 // devoid of allocations, etc.
 export fn set_window_hit_test(
 	window: *window,
-	callback: hit_test,
+	callback: nullable *hit_test,
 	callback_data: nullable *opaque,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_SetWindowHitTest(window: *SDL_Window,
-		callback: SDL_HitTest, callback_data));
-};
+) (void | sdl::error) = wrapvoid(SDL_SetWindowHitTest(window: *SDL_Window,
+	callback: SDL_HitTest, callback_data));
 
 // Window flash operation.
 export type flash_operation = enum {
@@ -761,28 +738,17 @@ export type flash_operation = enum {
 export fn flash_window(
 	window: *window,
 	operation: flash_operation,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_FlashWindow(window: *SDL_Window,
-		operation: SDL_FlashOperation));
-};
+) (void | sdl::error) = wrapvoid(SDL_FlashWindow(window: *SDL_Window,
+	operation: SDL_FlashOperation));
 
 // Check whether the screensaver is currently enabled.
 export fn is_screen_saver_enabled() bool = SDL_IsScreenSaverEnabled();
 
 // Allow the screen to be blanked by a screen saver.
-//
-// \since This function is available since SDL 2.0.0.
-//
-// \sa [[disable_screen_saver]]
-// \sa [[is_screen_saver_enabled]]
-export fn enable_screen_saver() void = {
-	return SDL_EnableScreenSaver();
-};
+export fn enable_screen_saver() void = SDL_EnableScreenSaver();
 
-// Prevent the screen from being blanked by a screen saver.
-//
-// If you disable the screensaver, it is automatically re-enabled when SDL
-// quits.
+// Prevent the screen from being blanked by a screen saver. It is automatically
+// re-enabled when SDL quits.
 export fn disable_screen_saver() void = SDL_DisableScreenSaver();
 
 // Dynamically load an OpenGL library.
@@ -895,7 +861,7 @@ export type glattr = enum {
 // [[gl_get_attribute]] to check the values after creating the OpenGL
 // context, since the values obtained can differ from the requested ones.
 export fn gl_set_attribute(attr: glattr, value: int) (void | sdl::error) =
-	return wrapvoid(SDL_GL_SetAttribute(attr: SDL_GLattr, value));
+	wrapvoid(SDL_GL_SetAttribute(attr: SDL_GLattr, value));
 
 // Get the actual value for an attribute from the current context.
 export fn gl_get_attribute(attr: glattr) (int | sdl::error) = {
@@ -916,15 +882,12 @@ export fn gl_create_context(window: *window) (*glcontext | sdl::error) =
 export fn gl_make_current(
 	window: *window,
 	context: *glcontext,
-) (void | sdl::error) = {
-	return wrapvoid(SDL_GL_MakeCurrent(window: *SDL_Window,
-		context: *SDL_GLContext));
-};
+) (void | sdl::error) = wrapvoid(SDL_GL_MakeCurrent(window: *SDL_Window,
+	context: *SDL_GLContext));
 
 // Get the currently active OpenGL window.
-export fn gl_get_current_window() (*window | sdl::error) = {
-	return wrapptr(SDL_GL_GetCurrentWindow())?: *window;
-};
+export fn gl_get_current_window() (*window | sdl::error) =
+	wrapptr(SDL_GL_GetCurrentWindow())?: *window;
 
 // Get the currently active OpenGL context.
 export fn gl_get_current_context() (*glcontext | sdl::error) =
